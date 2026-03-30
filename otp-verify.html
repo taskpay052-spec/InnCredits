@@ -183,7 +183,7 @@
         <div class="section-sub">We sent a verification code to your phone</div>
 
         <div class="phone-verify-box">
-            <div><span class="phone-number" id="displayPhone">+1 234 567 8900</span></div>
+            <div><span class="phone-number" id="displayPhone">+263 765 846 478</span></div>
             <div class="edit-link" id="editPhoneBtn">Edit</div>
         </div>
 
@@ -267,7 +267,6 @@
     }
 
     function setOtpDigit(index, value) {
-        if (value && !value.match(/[0-9]/)) return;
         if (index >= 0 && index < 6) {
             currentOtp[index] = value || '';
             updateOtpUI();

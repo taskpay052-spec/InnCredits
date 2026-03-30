@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Application Complete · InnCredits</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b1120;
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .success-card {
+            max-width: 400px;
+            background: #111827;
+            border-radius: 32px;
+            padding: 40px 24px;
+            text-align: center;
+            border: 1px solid #14b8a6;
+        }
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            background: #14b8a6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 48px;
+            color: #0b1120;
+        }
+        h1 { color: white; font-size: 1.8rem; margin-bottom: 12px; }
+        p { color: #94a3b8; margin-bottom: 24px; line-height: 1.5; }
+        .loan-details {
+            background: #0f1724;
+            border-radius: 20px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #e2e8f0;
+        }
+        .home-btn {
+            background: #14b8a6;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            color: #0b1120;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="success-card">
+    <div class="check-icon">✓</div>
+    <h1>Application Submitted!</h1>
+    <p>Your loan application has been received successfully.</p>
+    <div class="loan-details">
+        <div class="detail-row"><span>Loan Amount:</span><strong id="displayAmount">$0</strong></div>
+        <div class="detail-row"><span>Status:</span><strong style="color:#14b8a6">Pending Review</strong></div>
+    </div>
+    <p style="font-size:0.8rem">You will receive a confirmation SMS shortly.</p>
+    <button class="home-btn" onclick="window.location.href='index.html'">Back to Home</button>
+</div>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('displayAmount').innerText = `$${parseInt(params.get('amount') || 0).toLocaleString()}`;
+</script>
+</body>
+</html>

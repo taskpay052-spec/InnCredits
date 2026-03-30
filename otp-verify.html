@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>InnCredits · Verify Number</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #0b1120;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 16px 16px 32px 16px;
+        }
+
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .loan-summary-bar {
+            background: #111827;
+            border-radius: 20px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid #1f2a3e;
+        }
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .summary-label {
+            font-size: 0.7rem;
+            color: #7e8aa2;
+            text-transform: uppercase;
+        }
+        .summary-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #14b8a6;
+        }
+
+        .otp-card {
+            background: #111827;
+            border-radius: 32px;
+            padding: 28px 24px 32px 24px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .section-sub {
+            font-size: 0.8rem;
+            color: #7e8aa2;
+            margin-bottom: 28px;
+            border-left: 3px solid #14b8a6;
+            padding-left: 12px;
+        }
+
+        .phone-verify-box {
+            background: #0f1724;
+            border-radius: 24px;
+            padding: 18px 16px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .phone-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .edit-link {
+            color: #14b8a6;
+            background: rgba(20, 184, 166, 0.1);
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .otp-box {
+            width: 55px;
+            height: 65px;
+            background: #0f1724;
+            border: 2px solid #1f2a3e;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #14b8a6;
+            outline: none;
+        }
+        .otp-box:focus {
+            border-color: #14b8a6;
+        }
+
+        .timer-text {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #7e8aa2;
+            margin-bottom: 8px;
+        }
+        .resend-btn {
+            display: block;
+            margin: 0 auto 24px;
+            background: none;
+            border: none;
+            color: #14b8a6;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .verify-btn {
+            width: 100%;
+            background: #14b8a6;
+            border: none;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0b1120;
+            border-radius: 60px;
+            cursor: pointer;
+        }
+        .verify-btn:disabled {
+            opacity: 0.6;
+        }
+        .error-message {
+            color: #f43f5e;
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+        }
+        .success-message {
+            color: #14b8a6;
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+        }
+        .success-message.show, .error-message.show { display: block; }
+
+        @media (max-width: 450px) {
+            .otp-box { width: 48px; height: 55px; font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="loan-summary-bar">
+        <div class="summary-item"><span class="summary-label">Loan Amount</span><span class="summary-value" id="summaryAmount">$0</span></div>
+        <div class="summary-item"><span class="summary-label">Term</span><span class="summary-value" id="summaryTerm">0</span></div>
+        <div class="summary-item"><span class="summary-label">Monthly</span><span class="summary-value" id="summaryMonthly">$0</span></div>
+        <div class="summary-item"><span class="summary-label">Interest</span><span class="summary-value" id="summaryRate">5%</span></div>
+    </div>
+
+    <div class="otp-card">
+        <div class="section-title">Verify your number</div>
+        <div class="section-sub">We sent a verification code to your phone</div>
+
+        <div class="phone-verify-box">
+            <div><span class="phone-number" id="displayPhone">+1 234 567 8900</span></div>
+            <div class="edit-link" id="editPhoneBtn">Edit</div>
+        </div>
+
+        <div class="otp-container">
+            <input type="text" maxlength="1" class="otp-box" data-idx="0" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" data-idx="1" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" data-idx="2" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" data-idx="3" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" data-idx="4" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-box" data-idx="5" inputmode="numeric">
+        </div>
+
+        <div class="timer-text" id="timerText">Code expires in 02:00</div>
+        <button class="resend-btn" id="resendBtn">Resend code</button>
+        <div class="error-message" id="otpError">Invalid verification code</div>
+        <div class="success-message" id="otpSuccess">✓ Verified! Redirecting...</div>
+        <button class="verify-btn" id="verifyBtn">Verify & Continue →</button>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const amount = urlParams.get('amount') || '500';
+    const term = urlParams.get('term') || '3';
+    const rate = urlParams.get('rate') || '5';
+    const monthly = urlParams.get('monthly') || '167.36';
+    let userPhone = urlParams.get('phone') || '+1 234 567 8900';
+
+    document.getElementById('summaryAmount').innerText = `$${parseInt(amount).toLocaleString()}`;
+    document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
+    document.getElementById('summaryMonthly').innerText = `$${parseFloat(monthly).toFixed(2)}`;
+    document.getElementById('summaryRate').innerText = `${rate}%`;
+    document.getElementById('displayPhone').innerText = userPhone;
+
+    let generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('Demo OTP:', generatedOtp);
+
+    let timeLeft = 120;
+    let timerInterval;
+    const timerText = document.getElementById('timerText');
+    const resendBtn = document.getElementById('resendBtn');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const errorMsg = document.getElementById('otpError');
+    const successMsg = document.getElementById('otpSuccess');
+
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerText.innerText = `Code expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerText.innerText = 'Code expired. Resend.';
+            verifyBtn.disabled = true;
+        }
+    }
+
+    function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timeLeft = 120;
+        updateTimer();
+        timerInterval = setInterval(() => { if (timeLeft > 0) { timeLeft--; updateTimer(); } }, 1000);
+    }
+
+    function resetOTP() {
+        generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log('New OTP:', generatedOtp);
+        startTimer();
+        verifyBtn.disabled = false;
+    }
+
+    startTimer();
+    resendBtn.onclick = () => resetOTP();
+
+    const otpBoxes = document.querySelectorAll('.otp-box');
+    let currentOtp = ['', '', '', '', '', ''];
+
+    function updateOtpUI() {
+        otpBoxes.forEach((box, idx) => { box.value = currentOtp[idx] || ''; });
+        const isFull = currentOtp.every(d => d && d.match(/[0-9]/));
+        verifyBtn.disabled = !isFull;
+    }
+
+    function setOtpDigit(index, value) {
+        if (value && !value.match(/[0-9]/)) return;
+        if (index >= 0 && index < 6) {
+            currentOtp[index] = value || '';
+            updateOtpUI();
+            if (value && index < 5) otpBoxes[index + 1].focus();
+        }
+    }
+
+    otpBoxes.forEach((box, idx) => {
+        box.addEventListener('input', (e) => setOtpDigit(idx, e.target.value.slice(-1)));
+        box.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace') {
+                e.preventDefault();
+                if (currentOtp[idx] !== '') setOtpDigit(idx, '');
+                else if (idx > 0) { setOtpDigit(idx - 1, ''); otpBoxes[idx - 1].focus(); }
+            }
+        });
+    });
+
+    verifyBtn.onclick = () => {
+        const enteredOtp = currentOtp.join('');
+        if (enteredOtp === generatedOtp) {
+            successMsg.classList.add('show');
+            verifyBtn.disabled = true;
+            localStorage.setItem('inncredits_verified', 'true');
+            setTimeout(() => { window.location.href = `success.html?status=approved&amount=${amount}&name=${urlParams.get('name') || 'Customer'}`; }, 1500);
+        } else {
+            errorMsg.classList.add('show');
+            setTimeout(() => errorMsg.classList.remove('show'), 2000);
+        }
+    };
+
+    document.getElementById('editPhoneBtn').onclick = () => {
+        const newPhone = prompt('Enter your phone number:', userPhone);
+        if (newPhone) { userPhone = newPhone; document.getElementById('displayPhone').innerText = userPhone; resetOTP(); }
+    };
+
+    otpBoxes[0].focus();
+</script>
+</body>
+</html>

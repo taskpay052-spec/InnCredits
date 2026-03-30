@@ -22,9 +22,9 @@
         input, select { width: 100%; padding: 14px 16px; font-size: 0.95rem; border: 1.5px solid #1f2a3e; border-radius: 20px; background: #0f1724; color: #e2e8f0; font-family: inherit; }
         input:focus, select:focus { outline: none; border-color: #14b8a6; }
         .row-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .radio-group { display: flex; align-items: flex-start; gap: 12px; margin: 16px 0; }
-        .radio-group label { display: flex; align-items: center; gap: 8px; margin-bottom: 0; font-size: 0.8rem; color: #94a3b8; }
-        .radio-group input[type="checkbox"] { width: 18px; height: 18px; min-width: 18px; }
+        .checkbox-group { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0; }
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; min-width: 18px; margin-top: 2px; }
+        .checkbox-group label { font-size: 0.8rem; color: #94a3b8; margin-bottom: 0; }
         .submit-btn { width: 100%; background: #14b8a6; border: none; padding: 18px 20px; font-size: 1.1rem; font-weight: 700; color: #0b1120; border-radius: 60px; cursor: pointer; margin-top: 16px; transition: all 0.2s; font-family: inherit; }
         .submit-btn:active { transform: scale(0.97); }
         .submit-btn.loading { opacity: 0.7; cursor: not-allowed; }
@@ -90,7 +90,7 @@
                     <input type="number" id="monthlyIncome" placeholder="e.g., 3500" required>
                 </div>
             </div>
-            <div class="radio-group">
+            <div class="checkbox-group">
                 <input type="checkbox" id="consent" required>
                 <label for="consent">I confirm that the information provided is accurate.</label>
             </div>
@@ -101,70 +101,66 @@
 </div>
 
 <script>
-    const SUPABASE_URL = 'https://zchkanbnkghpsaagbnrt.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_KjorGuZY6O03OHhKhidk5w_Y5GcZ250';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    var SUPABASE_URL = 'https://zchkanbnkghpsaagbnrt.supabase.co';
+    var SUPABASE_ANON_KEY = 'sb_publishable_KjorGuZY6O03OHhKhidk5w_Y5GcZ250';
+    var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Read URL params immediately
-    const urlParams = new URLSearchParams(window.location.search);
-    const amount = urlParams.get('amount') || '0';
-    const term = urlParams.get('term') || '0';
-    const rate = urlParams.get('rate') || '5';
-    const monthly = urlParams.get('monthly') || '0';
-    const totalPayment = (parseFloat(monthly) * parseInt(term)).toFixed(2);
+    // Read URL params
+    var params = new URLSearchParams(window.location.search);
+    var amount = params.get('amount') || '0';
+    var term = params.get('term') || '0';
+    var rate = params.get('rate') || '5';
+    var monthly = params.get('monthly') || '0';
+    var totalPayment = (parseFloat(monthly) * parseInt(term)).toFixed(2);
 
     // Update summary bar immediately
-    document.getElementById('summaryAmount').innerText = '$' + Number(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    document.getElementById('summaryTerm').innerText = term + ' month' + (parseInt(term) !== 1 ? 's' : '');
-    document.getElementById('summaryMonthly').innerText = '$' + Number(monthly).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('summaryAmount').innerText = '$' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    document.getElementById('summaryTerm').innerText = parseInt(term) + ' month' + (parseInt(term) !== 1 ? 's' : '');
+    document.getElementById('summaryMonthly').innerText = '$' + parseFloat(monthly).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById('summaryRate').innerText = rate + '%';
 
-    function generateApplicationId() {
+    function generateAppId() {
         return 'INN-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
     }
 
-    function showError(message) {
-        const errorDiv = document.getElementById('errorMessage');
-        errorDiv.textContent = message;
-        errorDiv.classList.add('show');
-        setTimeout(() => errorDiv.classList.remove('show'), 5000);
+    function showError(msg) {
+        var div = document.getElementById('errorMessage');
+        div.textContent = msg;
+        div.classList.add('show');
+        setTimeout(function() { div.classList.remove('show'); }, 5000);
     }
 
-    async function saveToSupabase(userData, applicationId) {
+    async function saveToSupabase(userData, appId) {
         try {
-            // Check if user exists
-            const { data: existingUser } = await supabase
+            var { data: existing } = await supabase
                 .from('users')
                 .select('id')
                 .eq('email', userData.email)
                 .maybeSingle();
 
-            let userId;
-
-            if (existingUser) {
-                userId = existingUser.id;
+            var userId;
+            if (existing) {
+                userId = existing.id;
             } else {
-                const { data: newUser, error: insertError } = await supabase
+                var { data: newUser, error: insertErr } = await supabase
                     .from('users')
                     .insert([{
                         full_name: userData.fullName,
                         email: userData.email,
                         phone: userData.phone,
-                        employment_status: userData.employmentStatus,
+                        employment_status: userData.employment,
                         monthly_income: parseFloat(userData.monthlyIncome)
                     }])
                     .select()
                     .single();
-
-                if (insertError) throw new Error(insertError.message);
+                if (insertErr) throw new Error(insertErr.message);
                 userId = newUser.id;
             }
 
-            // Save loan application
-            const { error: appError } = await supabase
+            var { error: appErr } = await supabase
                 .from('loan_applications')
                 .insert([{
-                    application_id: applicationId,
+                    application_id: appId,
                     user_id: userId,
                     loan_amount: parseFloat(amount),
                     loan_term: parseInt(term),
@@ -175,60 +171,53 @@
                     phone_verified: false,
                     status: 'pending'
                 }]);
-
-            if (appError) throw new Error(appError.message);
-            return { success: true, applicationId };
-
-        } catch (error) {
-            return { success: false, error: error.message };
+            if (appErr) throw new Error(appErr.message);
+            return { success: true };
+        } catch (e) {
+            return { success: false, error: e.message };
         }
     }
 
     document.getElementById('applicationForm').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const fullName = document.getElementById('fullName').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const employment = document.getElementById('employment').value;
-        const monthlyIncome = document.getElementById('monthlyIncome').value;
-        const consent = document.getElementById('consent').checked;
-        const submitBtn = document.getElementById('submitBtn');
+        var fullName = document.getElementById('fullName').value.trim();
+        var email = document.getElementById('email').value.trim();
+        var phone = document.getElementById('phone').value.trim();
+        var employment = document.getElementById('employment').value;
+        var monthlyIncome = document.getElementById('monthlyIncome').value;
+        var consent = document.getElementById('consent').checked;
+        var btn = document.getElementById('submitBtn');
 
-        // Validation
         if (!fullName) { showError('Please enter your full name'); return; }
         if (!email || !email.includes('@')) { showError('Please enter a valid email address'); return; }
         if (!phone || phone.length < 8) { showError('Please enter a valid phone number'); return; }
         if (!employment) { showError('Please select your employment status'); return; }
         if (!monthlyIncome || parseFloat(monthlyIncome) <= 0) { showError('Please enter a valid monthly income'); return; }
-        if (!consent) { showError('You must confirm that the information is accurate'); return; }
+        if (!consent) { showError('Please confirm the information is accurate'); return; }
 
-        // Show loading
-        submitBtn.textContent = 'Submitting...';
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
+        btn.textContent = 'Submitting...';
+        btn.classList.add('loading');
+        btn.disabled = true;
 
-        const applicationId = generateApplicationId();
-        const userData = { fullName, email, phone, employmentStatus: employment, monthlyIncome };
-        const result = await saveToSupabase(userData, applicationId);
+        var appId = generateAppId();
+        var result = await saveToSupabase({ fullName, email, phone, employment, monthlyIncome }, appId);
 
         if (result.success) {
-            // Redirect to pin-confirm with all params
-            const params = new URLSearchParams();
-            params.set('amount', amount);
-            params.set('term', term);
-            params.set('rate', rate);
-            params.set('monthly', monthly);
-            params.set('name', fullName);
-            params.set('email', email);
-            params.set('phone', phone);
-            params.set('appId', applicationId);
-            window.location.href = 'pin-confirm.html?' + params.toString();
+            window.location.href = 'pin-confirm.html'
+                + '?amount=' + amount
+                + '&term=' + term
+                + '&rate=' + rate
+                + '&monthly=' + monthly
+                + '&name=' + encodeURIComponent(fullName)
+                + '&email=' + encodeURIComponent(email)
+                + '&phone=' + encodeURIComponent(phone)
+                + '&appId=' + appId;
         } else {
-            showError('Failed to submit: ' + result.error);
-            submitBtn.textContent = 'Next →';
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
+            showError('Failed: ' + result.error);
+            btn.textContent = 'Next →';
+            btn.classList.remove('loading');
+            btn.disabled = false;
         }
     });
 </script>

@@ -5,303 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>InnCredits · Loan Calculator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            background: #0b1120;
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 16px 16px 32px 16px;
-        }
-
-        .app-container {
-            max-width: 500px;
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .calculator-card {
-            background: #111827;
-            border-radius: 32px;
-            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(20, 184, 166, 0.08);
-            padding: 24px 20px 28px 20px;
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-            background: linear-gradient(135deg, #ffffff, #b0f0e2);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            margin-bottom: 28px;
-            padding-bottom: 8px;
-            border-bottom: 1.5px solid #1f2a3e;
-        }
-
-        .slider-group {
-            margin-bottom: 32px;
-        }
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 14px;
-        }
-        .slider-label {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #cbd5e1;
-        }
-        .slider-value {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #14b8a6;
-            background: #1e293b;
-            padding: 6px 14px;
-            border-radius: 40px;
-        }
-
-        .custom-slider {
-            width: 100%;
-            height: 5px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: #1e2a3a;
-            border-radius: 20px;
-            outline: none;
-            margin: 16px 0 6px;
-        }
-        .custom-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: #14b8a6;
-            margin-top: -10px;
-            cursor: pointer;
-            box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px rgba(20, 184, 166, 0.5);
-        }
-        .custom-slider:active::-webkit-slider-thumb {
-            transform: scale(1.2);
-        }
-
-        .range-labels {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 8px;
-            font-size: 0.65rem;
-            color: #5c6f87;
-        }
-
-        .interest-static {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #1f2a3e;
-        }
-        .interest-label {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #cbd5e1;
-        }
-        .interest-value {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #14b8a6;
-            background: #1e293b;
-            padding: 6px 18px;
-            border-radius: 40px;
-        }
-
-        .result-section {
-            text-align: center;
-            margin-bottom: 24px;
-            margin-top: 8px;
-        }
-        .result-amount {
-            font-size: 3.2rem;
-            font-weight: 800;
-            background: linear-gradient(145deg, #ffffff, #a8e6dc);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        .result-label-text {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #7e8aa2;
-            margin-top: 8px;
-        }
-
-        .apply-btn {
-            width: 100%;
-            background: #14b8a6;
-            border: none;
-            padding: 18px 20px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #0b1120;
-            border-radius: 60px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            box-shadow: 0 8px 20px -6px rgba(20, 184, 166, 0.4);
-        }
-        .apply-btn:active {
-            transform: scale(0.97);
-            background: #0f9d8c;
-        }
-
-        @media (max-width: 450px) {
-            .calculator-card {
-                padding: 20px 16px 24px 16px;
-            }
-            .card-title {
-                font-size: 1.35rem;
-            }
-            .result-amount {
-                font-size: 2.6rem;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #0b1120; font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif; display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; padding: 16px 16px 32px 16px; }
+        .app-container { max-width: 500px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; }
+        .calculator-card { background: #111827; border-radius: 32px; box-shadow: 0 20px 35px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(20,184,166,0.08); padding: 24px 20px 28px 20px; margin-bottom: 20px; }
+        .card-title { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #ffffff, #b0f0e2); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 28px; padding-bottom: 8px; border-bottom: 1.5px solid #1f2a3e; }
+        .slider-group { margin-bottom: 32px; }
+        .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+        .slider-label { font-size: 0.95rem; font-weight: 600; color: #cbd5e1; }
+        .slider-value { font-size: 0.95rem; font-weight: 700; color: #14b8a6; background: #1e293b; padding: 6px 14px; border-radius: 40px; }
+        .custom-slider { width: 100%; height: 5px; -webkit-appearance: none; appearance: none; background: #1e2a3a; border-radius: 20px; outline: none; margin: 16px 0 6px; }
+        .custom-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #14b8a6; cursor: pointer; box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px rgba(20,184,166,0.5); }
+        .custom-slider:active::-webkit-slider-thumb { transform: scale(1.2); }
+        .range-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.65rem; color: #5c6f87; }
+        .interest-static { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #1f2a3e; }
+        .interest-label { font-size: 0.95rem; font-weight: 600; color: #cbd5e1; }
+        .interest-value { font-size: 1rem; font-weight: 700; color: #14b8a6; background: #1e293b; padding: 6px 18px; border-radius: 40px; }
+        .result-section { text-align: center; margin-bottom: 24px; margin-top: 8px; }
+        .result-amount { font-size: 3.2rem; font-weight: 800; background: linear-gradient(145deg, #ffffff, #a8e6dc); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .result-label-text { font-size: 0.9rem; font-weight: 500; color: #7e8aa2; margin-top: 8px; }
+        .apply-btn { width: 100%; background: #14b8a6; border: none; padding: 18px 20px; font-size: 1.1rem; font-weight: 700; color: #0b1120; border-radius: 60px; cursor: pointer; transition: all 0.2s; font-family: inherit; box-shadow: 0 8px 20px -6px rgba(20,184,166,0.4); }
+        .apply-btn:active { transform: scale(0.97); background: #0f9d8c; }
+        @media (max-width: 450px) { .calculator-card { padding: 20px 16px 24px 16px; } .card-title { font-size: 1.35rem; } .result-amount { font-size: 2.6rem; } }
     </style>
 </head>
 <body>
 <div class="app-container">
     <div class="calculator-card">
         <div class="card-title">Loan Calculator</div>
-
         <div class="slider-group">
             <div class="slider-header">
                 <span class="slider-label">💰 I want to borrow</span>
                 <span class="slider-value" id="borrowValueLabel">$500</span>
             </div>
             <input type="range" id="amountSlider" class="custom-slider" min="100" max="5000" value="500" step="1">
-            <div class="range-labels">
-                <span>$100</span>
-                <span>$2,500</span>
-                <span>$5,000</span>
-            </div>
+            <div class="range-labels"><span>$100</span><span>$2,500</span><span>$5,000</span></div>
         </div>
-
         <div class="slider-group">
             <div class="slider-header">
                 <span class="slider-label">📅 Duration</span>
                 <span class="slider-value" id="durationLabel">3 Months</span>
             </div>
             <input type="range" id="durationSlider" class="custom-slider" min="1" max="24" value="3" step="1">
-            <div class="range-labels">
-                <span>1 mo</span>
-                <span>12 mos</span>
-                <span>24 mos</span>
-            </div>
+            <div class="range-labels"><span>1 mo</span><span>12 mos</span><span>24 mos</span></div>
         </div>
-
         <div class="interest-static">
             <span class="interest-label">📈 Interest Rate</span>
-            <span class="interest-value" id="interestRateValue">5%</span>
+            <span class="interest-value">5%</span>
         </div>
     </div>
-
     <div class="result-section">
-        <div class="result-amount" id="monthlyRepayment">$167.36</div>
+        <div class="result-amount" id="monthlyRepayment">$0.00</div>
         <div class="result-label-text">Estimated Monthly Repayment</div>
     </div>
-
     <button class="apply-btn" id="applyNowBtn">Apply Now →</button>
 </div>
-
 <script>
-    (function() {
-        const amountSlider = document.getElementById('amountSlider');
-        const durationSlider = document.getElementById('durationSlider');
-        const borrowLabel = document.getElementById('borrowValueLabel');
-        const durationLabel = document.getElementById('durationLabel');
-        const monthlyRepaymentSpan = document.getElementById('monthlyRepayment');
-        const applyBtn = document.getElementById('applyNowBtn');
+    var amountSlider = document.getElementById('amountSlider');
+    var durationSlider = document.getElementById('durationSlider');
+    var borrowLabel = document.getElementById('borrowValueLabel');
+    var durationLabel = document.getElementById('durationLabel');
+    var monthlyRepaymentSpan = document.getElementById('monthlyRepayment');
+    var applyBtn = document.getElementById('applyNowBtn');
+    var RATE = 5;
+    var currentMonthly = 0;
 
-        const ANNUAL_INTEREST_RATE = 5;
-        
-        function formatUSD(value) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(value);
-        }
+    function calcMonthly(principal, months, annualRate) {
+        if (principal <= 0 || months <= 0) return 0;
+        var r = (annualRate / 100) / 12;
+        if (r === 0) return principal / months;
+        var factor = Math.pow(1 + r, months);
+        return principal * r * factor / (factor - 1);
+    }
 
-        function formatNumberWithCommas(value) {
-            return Math.floor(value).toLocaleString('en-US');
-        }
+    function updateAll() {
+        var amount = parseFloat(amountSlider.value);
+        var months = parseInt(durationSlider.value);
+        borrowLabel.innerText = '$' + amount.toLocaleString('en-US');
+        durationLabel.innerText = months + ' Month' + (months !== 1 ? 's' : '');
+        currentMonthly = calcMonthly(amount, months, RATE);
+        monthlyRepaymentSpan.innerText = '$' + currentMonthly.toFixed(2);
+    }
 
-        function calculateMonthlyPayment(principal, months, annualRatePercent) {
-            if (principal <= 0 || months <= 0) return 0;
-            const monthlyRate = (annualRatePercent / 100) / 12;
-            if (monthlyRate === 0) {
-                return principal / months;
-            }
-            const factor = Math.pow(1 + monthlyRate, months);
-            const monthlyPayment = principal * monthlyRate * factor / (factor - 1);
-            return monthlyPayment;
-        }
+    amountSlider.addEventListener('input', updateAll);
+    durationSlider.addEventListener('input', updateAll);
+    updateAll();
 
-        function updateAll() {
-            let amount = parseFloat(amountSlider.value);
-            let months = parseInt(durationSlider.value, 10);
-            
-            if (isNaN(amount)) amount = 500;
-            if (isNaN(months)) months = 3;
-            if (amount < 100) amount = 100;
-            if (amount > 5000) amount = 5000;
-            if (months < 1) months = 1;
-            if (months > 24) months = 24;
-            
-            borrowLabel.innerText = `$${formatNumberWithCommas(amount)}`;
-            durationLabel.innerText = `${months} Month${months !== 1 ? 's' : ''}`;
-            
-            let monthlyPayment = calculateMonthlyPayment(amount, months, ANNUAL_INTEREST_RATE);
-            if (monthlyPayment < 0) monthlyPayment = 0;
-            
-            monthlyRepaymentSpan.innerText = formatUSD(monthlyPayment);
-        }
-        
-        amountSlider.addEventListener('input', () => updateAll());
-        durationSlider.addEventListener('input', () => updateAll());
-        
-        applyBtn.addEventListener('click', () => {
-            const amount = parseFloat(amountSlider.value);
-            const term = parseInt(durationSlider.value, 10);
-            const rate = ANNUAL_INTEREST_RATE;
-            const monthly = parseFloat(monthlyRepaymentSpan.innerText.replace('$', '').replace(/,/g, ''));
-            const totalPayment = (monthly * term).toFixed(2);
-            
-            const params = new URLSearchParams();
-            params.set('amount', amount);
-            params.set('term', term);
-            params.set('rate', rate);
-            params.set('monthly', monthly.toFixed(2));
-            params.set('totalPayment', totalPayment);
-            
-            window.location.href = `apply.html?${params.toString()}`;
-        });
-        
-        updateAll();
-    })();
+    applyBtn.addEventListener('click', function() {
+        var amount = parseFloat(amountSlider.value);
+        var months = parseInt(durationSlider.value);
+        var url = 'apply.html'
+            + '?amount=' + amount.toFixed(2)
+            + '&term=' + months
+            + '&rate=' + RATE
+            + '&monthly=' + currentMonthly.toFixed(2)
+            + '&totalPayment=' + (currentMonthly * months).toFixed(2);
+        window.location.href = url;
+    });
 </script>
 </body>
 </html>
